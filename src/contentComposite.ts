@@ -10,7 +10,7 @@ export default class ContentComposite extends Composite {
 
     private contentCollectionView: CollectionView;
 
-    constructor(folderId: string, properties?: CompositeProperties) {
+    constructor(folderId: string, cb, properties?: CompositeProperties) {
         super(properties);
         this.folderId = folderId;
         let session = SingleCmisSession.getCmisSession();
@@ -22,21 +22,26 @@ export default class ContentComposite extends Composite {
                 console.log("i: " + i);
                 // tmpData[i] = cmisObjects[i].object.properties;
                 tmpData[i] = {
+                    'cmisObjectId': cmisObjects[i].object.properties['cmis:objectId'].value,
                     'cmisName': cmisObjects[i].object.properties['cmis:name'].value,
                     'cmisBaseTypeId': cmisObjects[i].object.properties['cmis:baseTypeId'].value
                 };
+                console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
                 console.log("cmisName: " + tmpData[i].cmisName);
                 console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
             }
             this.contentCollectionView = this.createContentCollectionView(tmpData);
             this.contentCollectionView.appendTo(this);
+
+            // call the callback to let the caller know we are finished
+            cb();
         });
     }
 
     private createContentCollectionView(data: any[]) {
         return new CollectionView({
             left: 0, top: 50, right: 0, bottom: 0,
-            id: 'contentCollection',
+            id: 'contentCollectionView',
             items: data,
             initializeCell: this.initializeCell,
             itemHeight: device.platform === 'iOS' ? 60 : 68
