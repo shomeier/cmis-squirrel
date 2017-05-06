@@ -2,7 +2,6 @@ import { ActivityIndicator, ui, Button, TextView, NavigationView, Page } from 't
 import { cmis } from './lib/cmis';
 import { SingleCmisSession } from './singleCmisSession'
 import RepositoriesCollectionView from './repositoriesComposite';
-import ContentCollectionView from './contentComposite';
 import WidgetFactory from './widgetFactory';
 
 const alfrescoUrl = "http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser";

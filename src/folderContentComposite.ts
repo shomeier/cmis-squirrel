@@ -2,7 +2,7 @@ import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite,
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
 
-export default class ContentComposite extends Composite {
+export default class FolderContentComposite extends Composite {
 
     private contentData: any[];
 

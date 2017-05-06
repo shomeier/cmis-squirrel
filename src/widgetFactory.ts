@@ -2,7 +2,8 @@ import { CollectionView, CollectionViewProperties, Composite, CompositePropertie
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
 import RepositoriesComposite from './repositoriesComposite';
-import ContentComposite from './contentComposite';
+import FolderContentComposite from './folderContentComposite';
+import DocumentContentComposite from './documentContentComposite';
 
 export default class WidgetFactory extends Composite {
 
@@ -28,37 +29,44 @@ export default class WidgetFactory extends Composite {
             session.loadRepositories().then(() => {
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
-                WidgetFactory.createContentPage(rootFolderId, '/', contentNavigationView);
+                WidgetFactory.createContentPage(rootFolderId, '/', 'cmis:folder', contentNavigationView);
             });
         });
 
         return repositoriesComposite;
     }
 
-    private static createContentPage(folderId: string, folderName: string, navigationView: NavigationView): Page {
+    private static createContentPage(objectId: string, objectName: string, baseTypeId: string, navigationView: NavigationView): Page {
         let page = new Page({
-            title: folderName,
+            title: objectName,
             autoDispose: false
         });
 
-        let contentComposite = new ContentComposite(folderId,
-            () => {
-                contentComposite.find('#contentCollectionView').on('select', ({ item }) => {
-                    console.log("In Select EventHandler ...");
-                    console.log("Item selected: " + JSON.stringify(item));
-                    console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
-                    if (item.cmisBaseTypeId == 'cmis:folder') {
-                        console.log("Creating sub content page ...");
-                        WidgetFactory.createContentPage(item.cmisObjectId, item.cmisName, navigationView);
-                        console.log("Created sub content page ...");
-                    }
-                })
-            }, {
-                left: 0, top: 0, right: 0, bottom: 0
-            });
+        console.log("In createContentPage for id: " + objectId);
+        console.log("In createContentPage for name: " + objectName);
+        console.log("In createContentPage for type: " + baseTypeId);
+        if (baseTypeId == 'cmis:folder') {
+            let folderContentComposite = new FolderContentComposite(objectId,
+                () => {
+                    folderContentComposite.find('#contentCollectionView').on('select', ({ item }) => {
+                        console.log("In Select EventHandler ...");
+                        console.log("Item selected: " + JSON.stringify(item));
+                        console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
+                        // if (item.cmisBaseTypeId == 'cmis:folder') {
+                            console.log("Creating sub content page ...");
+                            WidgetFactory.createContentPage(item.cmisObjectId, item.cmisName, item.cmisBaseTypeId, navigationView);
+                            console.log("Created sub content page ...");
+                        // }
+                    })
+                }, {
+                    left: 0, top: 0, right: 0, bottom: 0
+                }).appendTo(page);
 
-        console.log("Appending to page ...");
-        contentComposite.appendTo(page);
+            // console.log("Appending to page ...");
+            // contentComposite.appendTo(page);
+        } else {
+            let documentContentComposite = new DocumentContentComposite(objectId).appendTo(page);
+        }
         page.appendTo(navigationView);
         console.log("Appended to page ...");
         return page;

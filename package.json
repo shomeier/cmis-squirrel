@@ -9,7 +9,8 @@
     "start": "tabris serve"
   },
   "dependencies": {
-    "tabris": "^2.0.0-beta2"
+    "tabris": "^2.0.0-beta2",
+    "cordova-plugin-file-transfer": "^1.6.3"
   },
   "devDependencies": {
     "tslint": "^5.2.0",
