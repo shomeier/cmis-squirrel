@@ -1,4 +1,4 @@
-import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, TextView, device } from 'tabris';
+import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, TextView, device, ui } from 'tabris';
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
 
@@ -10,10 +10,20 @@ export default class ContentComposite extends Composite {
 
     private contentCollectionView: CollectionView;
 
+    private activityIndicator: ActivityIndicator;
+
     constructor(folderId: string, cb, properties?: CompositeProperties) {
         super(properties);
         this.folderId = folderId;
         let session = SingleCmisSession.getCmisSession();
+
+        this.activityIndicator = new ActivityIndicator({
+            centerX: 0,
+            centerY: 0,
+            visible: true,
+        }).appendTo(this);
+
+        // ui.contentView.find('ActivityIndicator').set('visible', true);
         session.getChildren(folderId).then(data => {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
@@ -35,6 +45,7 @@ export default class ContentComposite extends Composite {
 
             // call the callback to let the caller know we are finished
             cb();
+            this.activityIndicator.visible = false;
         });
     }
 
@@ -71,6 +82,7 @@ export default class ContentComposite extends Composite {
             textView.set('text', item.cmisName);
         });
         cell.on('select', function ({ value: item }) {
+            console.log("CELL SELECTED !!!!!!")
             imageView.set('image', 'icons/Cloud-50.png');
             textView.set('text', item.cmisBaseTypeId);
         });

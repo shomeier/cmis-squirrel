@@ -28,16 +28,16 @@ export default class WidgetFactory extends Composite {
             session.loadRepositories().then(() => {
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
-                WidgetFactory.createContentPage(rootFolderId, contentNavigationView);
+                WidgetFactory.createContentPage(rootFolderId, '/', contentNavigationView);
             });
         });
 
         return repositoriesComposite;
     }
 
-    private static createContentPage(folderId: string, navigationView: NavigationView): Page {
+    private static createContentPage(folderId: string, folderName: string, navigationView: NavigationView): Page {
         let page = new Page({
-            title: '/',
+            title: folderName,
             autoDispose: false
         });
 
@@ -49,7 +49,7 @@ export default class WidgetFactory extends Composite {
                     console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
                     if (item.cmisBaseTypeId == 'cmis:folder') {
                         console.log("Creating sub content page ...");
-                        WidgetFactory.createContentPage(item.cmisObjectId, navigationView);
+                        WidgetFactory.createContentPage(item.cmisObjectId, item.cmisName, navigationView);
                         console.log("Created sub content page ...");
                     }
                 })

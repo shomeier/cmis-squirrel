@@ -1,4 +1,4 @@
-import { ui, Button, TextView, NavigationView, Page } from 'tabris';
+import { ActivityIndicator, ui, Button, TextView, NavigationView, Page } from 'tabris';
 import { cmis } from './lib/cmis';
 import { SingleCmisSession } from './singleCmisSession'
 import RepositoriesCollectionView from './repositoriesComposite';
@@ -21,6 +21,12 @@ let password = 'admin';
 //       })
 // }).catch(err => console.log("Error: " + err));
 // let session = SingleCmisSession.initCmisSession(alfrescoUrl);
+
+let activityIndicator = new ActivityIndicator({
+  centerX: 0,
+  centerY: 0,
+  visible: false,
+}).appendTo(ui.contentView);
 
 let contentNavigationView = new NavigationView({
   left: 0, top: 0, right: 0, bottom: 0,
