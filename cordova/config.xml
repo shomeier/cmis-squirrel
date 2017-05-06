@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="shorty.cmis.tabris" version="0.1.0">
+  <name>Mobile CMIS Client</name>
+  <description>
+    Mobile CMIS Client
+  </description>
+  <author email="sascha.homeier@gmail.com">
+    Sascha Homeier
+  </author>
+</widget>

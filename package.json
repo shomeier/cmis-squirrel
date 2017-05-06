@@ -1,0 +1,19 @@
+{
+  "name": "shorty.cmis.tabris",
+  "version": "0.1.0",
+  "main": "dist/app.js",
+  "private": true,
+  "scripts": {
+    "test": "tslint 'src/**/*.ts'",
+    "build": "tsc -p .",
+    "start": "tabris serve"
+  },
+  "dependencies": {
+    "tabris": "^2.0.0-beta2"
+  },
+  "devDependencies": {
+    "tslint": "^5.2.0",
+    "typescript": "^2.3.2",
+    "es6-promise": "^4.1.0"
+  }
+}
