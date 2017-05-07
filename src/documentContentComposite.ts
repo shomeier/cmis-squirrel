@@ -45,6 +45,7 @@ export default class DocumentContentComposite extends Composite {
             "cdvfile://localhost/temporary/testCmis.png",
             function (entry) {
                 console.log("download complete: " + entry.toURL());
+                cordova.plugins.fileOpener2.open(entry.toURL(), "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
             },
             function (error) {
                 console.log("download error source " + error.source);
@@ -89,7 +90,7 @@ export default class DocumentContentComposite extends Composite {
         //     console.log("CALLBACK CALLLED !!!!!");
         // });
         // cordova.plugins.disusered.open("cdvfile://localhost/temporary/testCmis.png", () => {console.log("CALLBACK SUCCESS CALLLED !!!!!")}, () => {console.log("CALLBACK ERROR CALLLED !!!!!")});
-        cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
+        // co   rdova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
         this.activityIndicator.visible = false;
 
         // ui.contentView.find('ActivityIndicator').set('visible', true);

@@ -7,5 +7,7 @@
     <author email="sascha.homeier@gmail.com">
     Sascha Homeier
   </author>
-  <plugin name="cordova-plugin-file-opener2" spec="~2.0.15" />
+  <preference name="EnableDeveloperConsole" value="true"/>
+  <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
+  <plugin name="cordova-plugin-file-opener2" spec="^2.0.15" />
 </widget>
