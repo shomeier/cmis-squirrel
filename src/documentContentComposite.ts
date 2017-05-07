@@ -5,7 +5,8 @@ import { cmis } from './lib/cmis';
 // var FileOpener2 = require('../node_modules/cordova-plugin-file-opener2/www/plugins.FileOpener2');
 // var FileTransfer = require('../node_modules/cordova-plugin-file-transfer/www/FileTransfer');
 // declare var fileOpener2 : any;
-// declare var cordova: any;
+declare var cordova: any;
+declare var FileTransfer: any;
 //import {FileTransfer} from 'cordova-plugin-file-transfer';
 
 export default class DocumentContentComposite extends Composite {
@@ -78,16 +79,17 @@ export default class DocumentContentComposite extends Composite {
         // } else {
         //     console.log("FileOpener3 is actually defined");
         // }
-        console.log("Before calling open ..."); 
-        console.log("cordova: " + cordova);
-        console.log("cordova.plugins: " + cordova.plugins);
-        console.log("cordova.plugins.fileOpener2: " + cordova.plugins.fileOpener2);
-        cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {
-            console.log("----------------------------");
-            console.log("----------------------------");
-            console.log("CALLBACK CALLLED !!!!!");
-        });
-        // cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
+        // console.log("Before calling open ..."); 
+        // console.log("cordova: " + cordova);
+        // console.log("cordova.plugins: " + JSON.stringify(cordova.plugins));
+        // console.log("cordova.plugins.fileOpener2: " + cordova.plugins.fileOpener2);
+        // cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {
+        //     console.log("----------------------------");
+        //     console.log("----------------------------");
+        //     console.log("CALLBACK CALLLED !!!!!");
+        // });
+        // cordova.plugins.disusered.open("cdvfile://localhost/temporary/testCmis.png", () => {console.log("CALLBACK SUCCESS CALLLED !!!!!")}, () => {console.log("CALLBACK ERROR CALLLED !!!!!")});
+        cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
         this.activityIndicator.visible = false;
 
         // ui.contentView.find('ActivityIndicator').set('visible', true);
