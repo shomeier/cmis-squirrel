@@ -16,6 +16,7 @@
     "cordova-plugin-file-opener2": "^2.0.15"
   },
   "devDependencies": {
+    "@types/cordova-plugin-file-transfer": "^0.0.3",
     "@types/node": "^7.0.18",
     "es6-promise": "^4.1.0",
     "tslint": "^5.2.0",

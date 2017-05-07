@@ -1,4 +1,4 @@
-import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, TextView, WebView, device, ui } from 'tabris';
+import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ProgressBar, ImageView, Page, TextView, WebView, device, ui } from 'tabris';
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
 // import { FileOpener2 } from '../node_modules/cordova-plugin-file-opener2/www/plugins.FileOpener2';
@@ -6,7 +6,7 @@ import { cmis } from './lib/cmis';
 // var FileTransfer = require('../node_modules/cordova-plugin-file-transfer/www/FileTransfer');
 // declare var fileOpener2 : any;
 declare var cordova: any;
-declare var FileTransfer: any;
+// declare var FileTransfer: any;
 //import {FileTransfer} from 'cordova-plugin-file-transfer';
 
 export default class DocumentContentComposite extends Composite {
@@ -17,7 +17,7 @@ export default class DocumentContentComposite extends Composite {
 
     private activityIndicator: ActivityIndicator;
 
-    constructor(fileId: string, cb?, properties?: CompositeProperties) {
+    constructor(fileId: string, fileName: string, cb?, properties?: CompositeProperties) {
         super(properties);
         this.fileId = fileId;
         let session = SingleCmisSession.getCmisSession();
@@ -28,24 +28,44 @@ export default class DocumentContentComposite extends Composite {
             visible: true,
         }).appendTo(this);
 
-        session.getObject(fileId).then(data => {
-            console.log("---------XXXX__-----------");
-            console.log("---------XXXX__-----------");
-            console.log("DATA FILE: " + JSON.stringify(data));
-        });
+        // session.getObject(fileId).then(data => {
+        //     console.log("---------XXXX__-----------");
+        //     console.log("---------XXXX__-----------");
+        //     console.log("DATA FILE: " + JSON.stringify(data));
+        // });
 
-        let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content';
-        // var webview = new WebView({
-        //     layoutData: { left: 0, top: 0, right: 0, bottom: 0 },
-        //     url: 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content'
-        // }).appendTo(this);
+        // let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content';
+        let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
+
+        var progressBar = new ProgressBar({
+            left: 15, right: 15, centerY: 0,
+            maximum: 100,
+            selection: 0
+        }).appendTo(ui.contentView);
+
         let fileTransfer = new FileTransfer();
+        fileTransfer.onprogress = function (progressEvent) {
+            console.log("ON PROGRESS CALLED ---------");
+            if (progressEvent.lengthComputable) {
+                progressBar.selection = (progressEvent.loaded / progressEvent.total);
+                // loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
+            } else {
+                progressBar.selection = progressBar.selection + 1;
+                // loadingStatus.increment();
+            }
+        };
         fileTransfer.download(
             url,
-            "cdvfile://localhost/temporary/testCmis.png",
+            // "cdvfile://localhost/temporary/testCmis.png",
+            'cdvfile://localhost/temporary/' + fileName,
             function (entry) {
                 console.log("download complete: " + entry.toURL());
-                cordova.plugins.fileOpener2.open(entry.toURL(), "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
+                progressBar.selection = 100;
+                progressBar.dispose();
+                // cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
+                //     console.log("CALLBACK CALLLED !!!!!");
+                //     console.log("data fileOpener CB: " + JSON.stringify(data));
+                // });
             },
             function (error) {
                 console.log("download error source " + error.source);
@@ -59,38 +79,6 @@ export default class DocumentContentComposite extends Composite {
                 }
             }
         );
-        //let fileOpener2 = new FileOpener2();
-        // fileTransfer.download(
-        // if(cordova.plugins.fileOpener2 == undefined) {
-        //     console.log("cordova.plugins.fileOpener2 == UNDEFINED");
-        // }
-        // if(cordova.plugins.fileOpener2 == null) {
-        //     console.log("cordova.plugins.fileOpener2 == NULL");
-        // }
-        // if(FileOpener2 == undefined) {
-        //     console.log("FileOpener2 == UNDEFINED");
-        // }
-        // if(FileOpener2 == null) {
-        //     console.log("FileOpener2 == NULL");
-        // }
-        // if(FileOpener3 == undefined) {
-        //     console.log("FileOpener3 == UNDEFINED");
-        // } else if(FileOpener3 == null) {
-        //     console.log("FileOpener3 == NULL");
-        // } else {
-        //     console.log("FileOpener3 is actually defined");
-        // }
-        // console.log("Before calling open ..."); 
-        // console.log("cordova: " + cordova);
-        // console.log("cordova.plugins: " + JSON.stringify(cordova.plugins));
-        // console.log("cordova.plugins.fileOpener2: " + cordova.plugins.fileOpener2);
-        // cordova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {
-        //     console.log("----------------------------");
-        //     console.log("----------------------------");
-        //     console.log("CALLBACK CALLLED !!!!!");
-        // });
-        // cordova.plugins.disusered.open("cdvfile://localhost/temporary/testCmis.png", () => {console.log("CALLBACK SUCCESS CALLLED !!!!!")}, () => {console.log("CALLBACK ERROR CALLLED !!!!!")});
-        // co   rdova.plugins.fileOpener2.open("cdvfile://localhost/temporary/testCmis.png", "testCmis.png", () => {console.log("CALLBACK CALLLED !!!!!")});
         this.activityIndicator.visible = false;
 
         // ui.contentView.find('ActivityIndicator').set('visible', true);
