@@ -1,12 +1,11 @@
 import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, TextView, WebView, device, ui } from 'tabris';
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
+//import {FileTransfer} from 'cordova-plugin-file-transfer';
 
 export default class DocumentContentComposite extends Composite {
 
     private fileId: string;
-
-    private fileTransfer = new FileTransfer();
 
     private contentCollectionView: CollectionView;
 
@@ -28,7 +27,7 @@ export default class DocumentContentComposite extends Composite {
             console.log("---------XXXX__-----------");
             console.log("DATA FILE: " + JSON.stringify(data));
         });
-        let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content
+        let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content';
         // var webview = new WebView({
         //     layoutData: { left: 0, top: 0, right: 0, bottom: 0 },
         //     url: 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content'
