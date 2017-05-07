@@ -13,8 +13,7 @@
     "cordova": "^7.0.0",
     "cordova-js": "^4.2.1",
     "cordova-plugin-file-transfer": "^1.6.3",
-    "cordova-plugin-file-opener2": "2.0.15",
-    "cordova-open": "1.0.12"
+    "cordova-plugin-file-opener2": "^2.0.15"
   },
   "devDependencies": {
     "@types/node": "^7.0.18",
