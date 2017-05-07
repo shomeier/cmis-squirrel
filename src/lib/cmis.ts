@@ -17,7 +17,7 @@ function btoa(input) {
     ) {
         charCode = str.charCodeAt(idx += 3 / 4);
         if (charCode > 0xFF) {
-            throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+            console.error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
         }
         block = block << 8 | charCode;
     }

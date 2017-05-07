@@ -7,6 +7,6 @@
   <author email="sascha.homeier@gmail.com">
     Sascha Homeier
   </author>
-  <gap:plugin name="org.apache.cordova.file-transfer" />
-  <gap:plugin name="https://github.com/pwlin/cordova-plugin-file-opener2" />
+  <gap:plugin name="cordova-plugin-file-transfer" />
+  <gap:plugin name="cordova-plugin-file-opener2" />
 </widget>
