@@ -15,17 +15,15 @@ export default class DocumentContentComposite extends Composite {
 
     private contentCollectionView: CollectionView;
 
-    private activityIndicator: ActivityIndicator;
-
-    constructor(fileId: string, fileName: string, cb?, properties?: CompositeProperties) {
+    constructor(fileId: string, fileName: string, properties?: CompositeProperties) {
         super(properties);
         this.fileId = fileId;
         let session = SingleCmisSession.getCmisSession();
 
-        this.activityIndicator = new ActivityIndicator({
+        let activityIndicator = new ActivityIndicator({
             centerX: 0,
             centerY: 0,
-            visible: true,
+            visible: true
         }).appendTo(this);
 
         // session.getObject(fileId).then(data => {
@@ -37,40 +35,50 @@ export default class DocumentContentComposite extends Composite {
         // let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=d590ef62-b530-4e54-ad4c-b7fc9f0a40cb%3B1.0&cmisselector=content';
         let url = 'http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
 
-        var progressBar = new ProgressBar({
-            left: 15, right: 15, centerY: 0,
-            maximum: 100,
-            selection: 0
-        }).appendTo(ui.contentView);
+        // var progressBar = new ProgressBar({
+        //     left: 30, right: 30, centerY: 0,
+        //     maximum: 100,
+        //     selection: 10
+        // }).appendTo(ui.contentView);
 
         let fileTransfer = new FileTransfer();
-        fileTransfer.onprogress = function (progressEvent) {
-            console.log("ON PROGRESS CALLED ---------");
-            if (progressEvent.lengthComputable) {
-                progressBar.selection = (progressEvent.loaded / progressEvent.total);
-                // loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
-            } else {
-                progressBar.selection = progressBar.selection + 1;
-                // loadingStatus.increment();
-            }
-        };
+        // fileTransfer.onprogress = function (progressEvent) {
+        //     console.log("ON PROGRESS CALLED ---------");
+        //     if (progressEvent.lengthComputable) {
+        //         console.log("ON PROGRESS CALLED lengthComputable ---------");
+        //         progressBar.selection = (progressEvent.loaded / progressEvent.total);
+        //         // loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
+        //     } else {
+        //         console.log("ON PROGRESS CALLED NOOOOT lengthComputable ---------");
+        //         progressBar.selection = progressBar.selection + 1;
+        //         // loadingStatus.increment();
+        //     }
+        // };
+
+        let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length-3, fileName.length);
+        console.log('TARGET: ' + target);
         fileTransfer.download(
             url,
             // "cdvfile://localhost/temporary/testCmis.png",
-            'cdvfile://localhost/temporary/' + fileName,
+            // 'cdvfile://localhost/temporary/cmisTempDownload.' + fileName.substring(fileName.length-3, fileName.length),
+            target,
             function (entry) {
                 console.log("download complete: " + entry.toURL());
-                progressBar.selection = 100;
-                progressBar.dispose();
+                // progressBar.selection = 100;
+                // progressBar.dispose();
+                activityIndicator.dispose();
                 // cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
                 //     console.log("CALLBACK CALLLED !!!!!");
                 //     console.log("data fileOpener CB: " + JSON.stringify(data));
                 // });
             },
             function (error) {
-                console.log("download error source " + error.source);
-                console.log("download error target " + error.target);
-                console.log("download error code" + error.code);
+                // progressBar.dispose();
+                activityIndicator.dispose();
+                console.log("download error complete: " + JSON.stringify(error));
+                console.log("download error source: " + JSON.stringify(error.source));
+                console.log("download error target: " + JSON.stringify(error.target));
+                console.log("download error code: " + JSON.stringify(error.code));
             },
             false,
             {
@@ -79,7 +87,8 @@ export default class DocumentContentComposite extends Composite {
                 }
             }
         );
-        this.activityIndicator.visible = false;
+
+        
 
         // ui.contentView.find('ActivityIndicator').set('visible', true);
         // session.getChildren(folderId).then(data => {

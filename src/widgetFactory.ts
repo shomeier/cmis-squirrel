@@ -65,7 +65,9 @@ export default class WidgetFactory extends Composite {
             // console.log("Appending to page ...");
             // contentComposite.appendTo(page);
         } else {
-            let documentContentComposite = new DocumentContentComposite(objectId, objectName).appendTo(page);
+            let documentContentComposite = new DocumentContentComposite(objectId, objectName, {
+                    left: 0, top: 0, right: 0, bottom: 0
+                }).appendTo(page);
         }
         page.appendTo(navigationView);
         console.log("Appended to page ...");
