@@ -4,7 +4,7 @@ import FolderPage from './folderPage';
 
 export default class RepositoriesPage extends Page {
 
-    private repositoriesView: CollectionView;
+    private collectionView: CollectionView;
 
     private navigationView:NavigationView;
 
@@ -18,8 +18,8 @@ export default class RepositoriesPage extends Page {
     constructor(navigationView:NavigationView, properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
-        this.repositoriesView = this.createRepositoriesCollection();
-        this.repositoriesView.appendTo(this);
+        this.collectionView = this.createRepositoriesCollection();
+        this.collectionView.appendTo(this);
     }
 
     private createRepositoriesCollection() {
@@ -37,7 +37,6 @@ export default class RepositoriesPage extends Page {
             session.loadRepositories().then(() => {
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
-                // WidgetFactory.createContentPage(rootFolderId, '/', 'cmis:folder', contentNavigationView);
                 new FolderPage(rootFolderId, this.navigationView,
                     {
                         title: '/'

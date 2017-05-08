@@ -5,15 +5,13 @@ declare var cordova: any;
 
 export default class FolderPage extends Page {
 
-    private contentData: any[];
-
     private folderId: string;
 
-    private contentCollectionView: CollectionView;
-
-    private activityIndicator: ActivityIndicator;
+    private collectionView: CollectionView;
 
     private navigationView: NavigationView;
+    
+    private activityIndicator: ActivityIndicator;
 
     constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
@@ -32,8 +30,7 @@ export default class FolderPage extends Page {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
-                console.log("----------------------------------");
-                console.log("i: " + i);
+                console.log(i + " ----------------------------------");
                 tmpData[i] = {
                     'cmisObjectId': cmisObjects[i].object.properties['cmis:objectId'].value,
                     'cmisName': cmisObjects[i].object.properties['cmis:name'].value,
@@ -43,8 +40,8 @@ export default class FolderPage extends Page {
                 console.log("cmisName: " + tmpData[i].cmisName);
                 console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
             }
-            this.contentCollectionView = this.createContentCollectionView(tmpData);
-            this.contentCollectionView.appendTo(this);
+            this.collectionView = this.createContentCollectionView(tmpData);
+            this.collectionView.appendTo(this);
 
             this.activityIndicator.visible = false;
         });
@@ -61,7 +58,6 @@ export default class FolderPage extends Page {
             console.log("In Select EventHandler ...");
             console.log("Item selected: " + JSON.stringify(item));
             console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
-            // if (item.cmisBaseTypeId == 'cmis:folder') {
             console.log("Creating sub content page ...");
             if (item.cmisBaseTypeId == 'cmis:folder') {
                 let folderPage = new FolderPage(item.cmisObjectId, this.navigationView,
@@ -109,7 +105,7 @@ export default class FolderPage extends Page {
         // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer
         // TODO: Check if doing sth. like this is ok
         let activityIndicator = this.activityIndicator;
-        let contentColView = this.contentCollectionView;
+        let contentColView = this.collectionView;
 
         activityIndicator.visible = true;
         contentColView.enabled = false;
@@ -145,7 +141,6 @@ export default class FolderPage extends Page {
                 }
             }
         );
-
     }
 
 }
