@@ -1,6 +1,7 @@
-import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
+import { ActivityIndicator, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
 import { cmis } from './lib/cmis';
+const roundTo = require('round-to');
 declare var cordova: any;
 
 export default class FolderPage extends Page {
@@ -31,14 +32,18 @@ export default class FolderPage extends Page {
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
                 // console.log(i + " ----------------------------------");
-                tmpData[i] = {
-                    'cmisObjectId': cmisObjects[i].object.properties['cmis:objectId'].value,
-                    'cmisName': cmisObjects[i].object.properties['cmis:name'].value,
-                    'cmisBaseTypeId': cmisObjects[i].object.properties['cmis:baseTypeId'].value
-                };
+                let tmp:any = {};
+                tmp.cmisObjectId = cmisObjects[i].object.properties['cmis:objectId'].value;
+                tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
+                tmp.cmisBaseTypeId = cmisObjects[i].object.properties['cmis:baseTypeId'].value;
+                if (cmisObjects[i].object.properties['cmis:contentStreamLength']) {
+                    tmp.cmisContentStreamFileSize = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
+                }
+                tmpData[i] = tmp;
                 // console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
                 // console.log("cmisName: " + tmpData[i].cmisName);
                 // console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
+                // console.log("contentStreamLength: " + tmpData[i].cmisContentStreamFileSize);
             }
             this.collectionView = this.createContentCollectionView(tmpData);
             this.collectionView.appendTo(this);
@@ -72,32 +77,48 @@ export default class FolderPage extends Page {
         });
     }
 
-    private initializeCell(cell) {
+    private initializeCell(cell:Cell) {
         new Composite({
             left: 10, right: 10, bottom: 0, height: 1,
             background: '#bbb'
         }).appendTo(cell);
-        var imageView = new ImageView({
+        var icon = new ImageView({
             left: 10, top: 10, bottom: 10,
             scaleMode: 'fit'
         }).appendTo(cell);
-        var textView = new TextView({
-            left: 60, centerY: 0,
+        var objectName = new TextView({
+            left: 60, top: 8,
             markupEnabled: true,
+            id: 'objectName',
             textColor: '#4a4a4a'
+        }).appendTo(cell);
+        var objectSize = new TextView({
+            left: 60, top: ["#objectName", 6],
+            markupEnabled: true,
+            textColor: '#9a9a9a'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: item }) {
             if (item.cmisBaseTypeId == 'cmis:document') {
-                imageView.set('image', 'icons/document.png');
+                icon.set('image', 'icons/document.png');
             } else {
-                imageView.set('image', 'icons/folder.png');
+                icon.set('image', 'icons/folder.png');
             }
-            textView.set('text', item.cmisName);
+            objectName.set('text', item.cmisName);
+            if (item.cmisContentStreamFileSize) {
+                let size:number = item.cmisContentStreamFileSize
+                if (size < 1024) {
+                    objectSize.set('text', size + ' Byte');
+                } else if (size <  1048576) {
+                    objectSize.set('text', roundTo((size / 1024), 1) + ' KB');
+                } else if (size <  1073741824) {
+                    objectSize.set('text', roundTo((size / 1048576), 1) + ' MB');
+                }
+            }
         });
         cell.on('select', function ({ value: item }) {
             console.log("CELL SELECTED !!!!!!")
-            imageView.set('image', 'icons/Cloud-50.png');
-            textView.set('text', item.cmisBaseTypeId);
+            icon.set('image', 'icons/Cloud-50.png');
+            objectName.set('text', item.cmisBaseTypeId);
         });
     }
 
