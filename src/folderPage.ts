@@ -87,7 +87,7 @@ export default class FolderPage extends Page {
             scaleMode: 'fit'
         }).appendTo(cell);
         var objectName = new TextView({
-            left: 60, top: 8,
+            left: 60, right: 60, top: 8,
             markupEnabled: true,
             id: 'objectName',
             textColor: '#4a4a4a'
