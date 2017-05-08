@@ -67,10 +67,10 @@ export default class DocumentContentComposite extends Composite {
                 // progressBar.selection = 100;
                 // progressBar.dispose();
                 activityIndicator.dispose();
-                // cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
-                //     console.log("CALLBACK CALLLED !!!!!");
-                //     console.log("data fileOpener CB: " + JSON.stringify(data));
-                // });
+                cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
+                    console.log("CALLBACK CALLLED !!!!!");
+                    console.log("data fileOpener CB: " + JSON.stringify(data));
+                });
             },
             function (error) {
                 // progressBar.dispose();
