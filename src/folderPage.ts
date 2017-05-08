@@ -1,8 +1,9 @@
-import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, TextView, device, ui } from 'tabris';
+import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { SingleCmisSession } from './singleCmisSession'
 import { cmis } from './lib/cmis';
+declare var cordova: any;
 
-export default class FolderContentComposite extends Composite {
+export default class FolderPage extends Page {
 
     private contentData: any[];
 
@@ -12,9 +13,13 @@ export default class FolderContentComposite extends Composite {
 
     private activityIndicator: ActivityIndicator;
 
-    constructor(folderId: string, cb, properties?: CompositeProperties) {
+    private navigationView: NavigationView;
+
+    constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.folderId = folderId;
+        this.navigationView = navigationView;
+        this.appendTo(navigationView);
         let session = SingleCmisSession.getCmisSession();
 
         this.activityIndicator = new ActivityIndicator({
@@ -23,14 +28,12 @@ export default class FolderContentComposite extends Composite {
             visible: true,
         }).appendTo(this);
 
-        // ui.contentView.find('ActivityIndicator').set('visible', true);
         session.getChildren(folderId).then(data => {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
                 console.log("----------------------------------");
                 console.log("i: " + i);
-                // tmpData[i] = cmisObjects[i].object.properties;
                 tmpData[i] = {
                     'cmisObjectId': cmisObjects[i].object.properties['cmis:objectId'].value,
                     'cmisName': cmisObjects[i].object.properties['cmis:name'].value,
@@ -43,8 +46,6 @@ export default class FolderContentComposite extends Composite {
             this.contentCollectionView = this.createContentCollectionView(tmpData);
             this.contentCollectionView.appendTo(this);
 
-            // call the callback to let the caller know we are finished
-            cb();
             this.activityIndicator.visible = false;
         });
     }
@@ -56,6 +57,22 @@ export default class FolderContentComposite extends Composite {
             items: data,
             initializeCell: this.initializeCell,
             itemHeight: device.platform === 'iOS' ? 60 : 68
+        }).on('select', ({ item }) => {
+            console.log("In Select EventHandler ...");
+            console.log("Item selected: " + JSON.stringify(item));
+            console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
+            // if (item.cmisBaseTypeId == 'cmis:folder') {
+            console.log("Creating sub content page ...");
+            if (item.cmisBaseTypeId == 'cmis:folder') {
+                let folderPage = new FolderPage(item.cmisObjectId, this.navigationView,
+                    {
+                        title: item.cmisName
+                    });
+            } else if (item.cmisBaseTypeId == 'cmis:document') {
+                // TODO: Check if document has content stream
+                this.openContent(item.cmisObjectId, item.cmisName);
+            }
+            console.log("Created sub content page ...");
         });
     }
 
@@ -86,6 +103,44 @@ export default class FolderContentComposite extends Composite {
             imageView.set('image', 'icons/Cloud-50.png');
             textView.set('text', item.cmisBaseTypeId);
         });
+    }
+
+    private openContent(fileId: string, fileName: string): void {
+        let activityIndicator = new ActivityIndicator({
+            centerX: 0,
+            centerY: 0,
+            visible: true
+        }).appendTo(this);
+
+        let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
+        let fileTransfer = new FileTransfer();
+        let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length-3, fileName.length);
+        console.log('TARGET: ' + target);
+        fileTransfer.download(
+            url,
+            target,
+            function (entry) {
+                console.log("download complete: " + entry.toURL());
+                activityIndicator.dispose();
+                cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
+                    console.log("CALLBACK CALLLED !!!!!");
+                    console.log("data fileOpener CB: " + JSON.stringify(data));
+                });
+            },
+            function (error) {
+                activityIndicator.dispose();
+                console.log("download error complete: " + JSON.stringify(error));
+                console.log("download error source: " + JSON.stringify(error.source));
+                console.log("download error target: " + JSON.stringify(error.target));
+                console.log("download error code: " + JSON.stringify(error.code));
+            },
+            false,
+            {
+                headers: {
+                    "Authorization": "Basic YWRtaW46YWRtaW4="
+                }
+            }
+        );
     }
 
 }
