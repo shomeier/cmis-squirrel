@@ -24,7 +24,7 @@ export default class RepositoriesPage extends Page {
 
     private createRepositoriesCollection() {
         return new CollectionView({
-            left: 0, top: 50, right: 0, bottom: 0,
+            left: 0, top: 0, right: 0, bottom: 0,
             id: 'repositoriesCollection',
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,
