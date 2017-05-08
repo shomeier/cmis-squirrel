@@ -30,15 +30,15 @@ export default class FolderPage extends Page {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
-                console.log(i + " ----------------------------------");
+                // console.log(i + " ----------------------------------");
                 tmpData[i] = {
                     'cmisObjectId': cmisObjects[i].object.properties['cmis:objectId'].value,
                     'cmisName': cmisObjects[i].object.properties['cmis:name'].value,
                     'cmisBaseTypeId': cmisObjects[i].object.properties['cmis:baseTypeId'].value
                 };
-                console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
-                console.log("cmisName: " + tmpData[i].cmisName);
-                console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
+                // console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
+                // console.log("cmisName: " + tmpData[i].cmisName);
+                // console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
             }
             this.collectionView = this.createContentCollectionView(tmpData);
             this.collectionView.appendTo(this);
@@ -112,16 +112,17 @@ export default class FolderPage extends Page {
 
         let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
-        let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
+        // let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
+        let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
         console.log('TARGET: ' + target);
         fileTransfer.download(
             url,
             target,
             function (entry) {
-                console.log("download complete: " + entry.toURL());
+                console.log("download complete: " + decodeURIComponent(entry.toURL()));
                 activityIndicator.visible = false;
                 contentColView.enabled = true;
-                cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
+                cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
                     console.log("CALLBACK CALLLED !!!!!");
                     console.log("data fileOpener CB: " + JSON.stringify(data));
                 });
