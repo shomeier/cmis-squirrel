@@ -106,11 +106,8 @@ export default class FolderPage extends Page {
     }
 
     private openContent(fileId: string, fileName: string): void {
-        let activityIndicator = new ActivityIndicator({
-            centerX: 0,
-            centerY: 0,
-            visible: true
-        }).appendTo(this);
+        let activityIndicator = this.activityIndicator;
+        activityIndicator.visible = true;
 
         let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
@@ -121,14 +118,14 @@ export default class FolderPage extends Page {
             target,
             function (entry) {
                 console.log("download complete: " + entry.toURL());
-                activityIndicator.dispose();
+                activityIndicator.visible = false;
                 cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
                     console.log("CALLBACK CALLLED !!!!!");
                     console.log("data fileOpener CB: " + JSON.stringify(data));
                 });
             },
             function (error) {
-                activityIndicator.dispose();
+                activityIndicator.visible = false;
                 console.log("download error complete: " + JSON.stringify(error));
                 console.log("download error source: " + JSON.stringify(error.source));
                 console.log("download error target: " + JSON.stringify(error.target));
