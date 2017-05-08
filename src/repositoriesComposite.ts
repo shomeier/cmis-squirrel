@@ -6,7 +6,7 @@ export default class RepositoriesComposite extends Composite {
 
     private exampleData = [{
         name: "Alfresco CMIS Demo",
-        url: "http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
+        url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
         user: "admin",
         password: "admin"
     }];
