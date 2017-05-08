@@ -106,12 +106,17 @@ export default class FolderPage extends Page {
     }
 
     private openContent(fileId: string, fileName: string): void {
+        // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer#
+        // TODO: Check if doing sth. like this is ok
         let activityIndicator = this.activityIndicator;
+        let contentColView = this.contentCollectionView;
+
         activityIndicator.visible = true;
+        contentColView.enabled = false;
 
         let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
-        let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length-3, fileName.length);
+        let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
         console.log('TARGET: ' + target);
         fileTransfer.download(
             url,
@@ -119,6 +124,7 @@ export default class FolderPage extends Page {
             function (entry) {
                 console.log("download complete: " + entry.toURL());
                 activityIndicator.visible = false;
+                contentColView.enabled = true;
                 cordova.plugins.fileOpener2.open(entry.toURL(), fileName, (data) => {
                     console.log("CALLBACK CALLLED !!!!!");
                     console.log("data fileOpener CB: " + JSON.stringify(data));
@@ -126,6 +132,7 @@ export default class FolderPage extends Page {
             },
             function (error) {
                 activityIndicator.visible = false;
+                contentColView.enabled = true;
                 console.log("download error complete: " + JSON.stringify(error));
                 console.log("download error source: " + JSON.stringify(error.source));
                 console.log("download error target: " + JSON.stringify(error.target));
@@ -138,6 +145,7 @@ export default class FolderPage extends Page {
                 }
             }
         );
+
     }
 
 }
