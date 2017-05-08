@@ -12,10 +12,12 @@
     "tabris": "^2.0.0-beta2",
     "cordova": "^7.0.0",
     "cordova-js": "^4.2.1",
+    "cordova-plugin-camera": "^2.4.1",
     "cordova-plugin-file-transfer": "^1.6.3",
     "cordova-plugin-file-opener2": "^2.0.15"
   },
   "devDependencies": {
+    "@types/cordova-plugin-camera": "^0.0.3",
     "@types/cordova-plugin-file-transfer": "^0.0.3",
     "@types/node": "^7.0.18",
     "es6-promise": "^4.1.0",
