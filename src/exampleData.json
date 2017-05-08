@@ -1,8 +1,0 @@
-[	
-	{
-		"name": "Alfresco CMIS Demo",
-		"url": "http://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
-		"user": "admin",
-		"password": "admin"
-	}
-]

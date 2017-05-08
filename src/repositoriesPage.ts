@@ -1,8 +1,12 @@
-import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, TextView, device } from 'tabris';
+import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
+import { SingleCmisSession } from './singleCmisSession'
+import FolderPage from './folderPage';
 
-export default class RepositoriesComposite extends Composite {
+export default class RepositoriesPage extends Page {
 
     private repositoriesView: CollectionView;
+
+    private navigationView:NavigationView;
 
     private exampleData = [{
         name: "Alfresco CMIS Demo",
@@ -11,8 +15,9 @@ export default class RepositoriesComposite extends Composite {
         password: "admin"
     }];
 
-    constructor(properties?: CompositeProperties) {
+    constructor(navigationView:NavigationView, properties?: PageProperties) {
         super(properties);
+        this.navigationView = navigationView;
         this.repositoriesView = this.createRepositoriesCollection();
         this.repositoriesView.appendTo(this);
     }
@@ -24,7 +29,21 @@ export default class RepositoriesComposite extends Composite {
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,
             itemHeight: device.platform === 'iOS' ? 40 : 48
-        })
+        }).on('select', ({ item }) => {
+            console.log('selected XXX: ' + JSON.stringify(item));
+            let session = SingleCmisSession.initCmisSession(item.url);
+            session.setCredentials(item.user, item.password);
+            session.setErrorHandler((err) => console.log(err));
+            session.loadRepositories().then(() => {
+                console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
+                let rootFolderId = session.defaultRepository.rootFolderId;
+                // WidgetFactory.createContentPage(rootFolderId, '/', 'cmis:folder', contentNavigationView);
+                new FolderPage(rootFolderId, this.navigationView,
+                    {
+                        title: '/'
+                    });
+            });
+        });
     }
 
     private initializeCell(cell) {

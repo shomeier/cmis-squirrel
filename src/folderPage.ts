@@ -106,7 +106,7 @@ export default class FolderPage extends Page {
     }
 
     private openContent(fileId: string, fileName: string): void {
-        // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer#
+        // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer
         // TODO: Check if doing sth. like this is ok
         let activityIndicator = this.activityIndicator;
         let contentColView = this.contentCollectionView;
