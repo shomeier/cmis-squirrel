@@ -1,12 +1,12 @@
 import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
-import { SingleCmisSession } from './singleCmisSession'
+import { CmisSession } from './cmisSession'
 import FolderPage from './folderPage';
 
 export default class RepositoriesPage extends Page {
 
     private collectionView: CollectionView;
 
-    private navigationView:NavigationView;
+    private navigationView: NavigationView;
 
     private exampleData = [{
         name: "Alfresco CMIS Demo",
@@ -15,7 +15,7 @@ export default class RepositoriesPage extends Page {
         password: "admin"
     }];
 
-    constructor(navigationView:NavigationView, properties?: PageProperties) {
+    constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
         this.collectionView = this.createRepositoriesCollection();
@@ -31,18 +31,28 @@ export default class RepositoriesPage extends Page {
             itemHeight: device.platform === 'iOS' ? 40 : 48
         }).on('select', ({ item }) => {
             console.log('selected XXX: ' + JSON.stringify(item));
-            let session = SingleCmisSession.initCmisSession(item.url);
-            session.setCredentials(item.user, item.password);
-            session.setErrorHandler((err) => console.log(err));
-            session.loadRepositories().then(() => {
+            CmisSession.init(item.url, item.user, item.password, () => {
+                let session = CmisSession.getSession();
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
                 new FolderPage(rootFolderId, this.navigationView,
                     {
                         title: '/'
                     });
-            });
+            }),
+            (err) => console.log(err)
         });
+        // session.setCredentials(item.user, item.password);
+        // session.setErrorHandler((err) => console.log(err));
+        // session.loadRepositories().then(() => {
+        //     console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
+        //     let rootFolderId = session.defaultRepository.rootFolderId;
+        //     new FolderPage(rootFolderId, this.navigationView,
+        //         {
+        //             title: '/'
+        //         });
+        // });
+        // });
     }
 
     private initializeCell(cell) {

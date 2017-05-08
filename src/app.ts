@@ -1,6 +1,5 @@
 import { ActivityIndicator, ui, Button, TextView, NavigationView, Page } from 'tabris';
 import { cmis } from './lib/cmis';
-import { SingleCmisSession } from './singleCmisSession'
 import RepositoriesPage from './repositoriesPage';
 import FolderPage from './folderPage';
 

@@ -1,5 +1,5 @@
 import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
-import { SingleCmisSession } from './singleCmisSession'
+import { CmisSession } from './cmisSession'
 import { cmis } from './lib/cmis';
 declare var cordova: any;
 
@@ -18,7 +18,7 @@ export default class FolderPage extends Page {
         this.folderId = folderId;
         this.navigationView = navigationView;
         this.appendTo(navigationView);
-        let session = SingleCmisSession.getCmisSession();
+        let session = CmisSession.getSession();
 
         this.activityIndicator = new ActivityIndicator({
             centerX: 0,

@@ -369,7 +369,6 @@ export namespace cmis {
          * @memberOf CmisSession
          */
         public loadRepositories(): Promise<void> {
-                console.log("In loadRepos...")
             return this.get(this.url, this.options).then(res => {
                 return res.json().then(data => {
                     for (let repo in data) {
