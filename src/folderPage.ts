@@ -1,5 +1,5 @@
 import { ActivityIndicator, CollectionView, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
-import { CmisSession } from './cmisSession'
+import CmisSession from './cmisSession'
 import { cmis } from './lib/cmis';
 declare var cordova: any;
 

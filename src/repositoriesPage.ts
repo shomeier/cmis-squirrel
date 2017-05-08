@@ -1,5 +1,5 @@
 import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
-import { CmisSession } from './cmisSession'
+import CmisSession from './cmisSession'
 import FolderPage from './folderPage';
 
 export default class RepositoriesPage extends Page {
@@ -42,17 +42,6 @@ export default class RepositoriesPage extends Page {
             }),
             (err) => console.log(err)
         });
-        // session.setCredentials(item.user, item.password);
-        // session.setErrorHandler((err) => console.log(err));
-        // session.loadRepositories().then(() => {
-        //     console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
-        //     let rootFolderId = session.defaultRepository.rootFolderId;
-        //     new FolderPage(rootFolderId, this.navigationView,
-        //         {
-        //             title: '/'
-        //         });
-        // });
-        // });
     }
 
     private initializeCell(cell) {

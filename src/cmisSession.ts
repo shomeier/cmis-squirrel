@@ -1,6 +1,6 @@
 import { cmis } from './lib/cmis';
 
-export class CmisSession {
+export default class CmisSession {
 
     private static _initialized: boolean = false;
 
