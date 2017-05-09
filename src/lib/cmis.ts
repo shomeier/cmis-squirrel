@@ -1,6 +1,7 @@
 // import 'isomorphic-fetch';
 // import { URLSearchParams } from 'urlsearchparams';
 // import { btoa } from 'isomorphic-base64';
+// import { FormData } from 'form-data';
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 function btoa(input) {
@@ -521,7 +522,7 @@ export namespace cmis {
             if (!options) {
                 options = {};
             }
-            
+
             let newInput;
             if ('string' == typeof input) {
                 newInput = {

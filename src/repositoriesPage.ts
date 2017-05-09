@@ -73,27 +73,28 @@ export default class RepositoriesPage extends Page {
             // background: '#bbb'
             background: '#d2cab5'
         }).appendTo(cell);
-        var imageView = new ImageView({
-            left: 10, top: 10, bottom: 10
-        }).appendTo(cell);
+        // var imageView = new ImageView({
+        //     left: 10, top: 10, bottom: 10
+        // }).appendTo(cell);
         var textView = new TextView({
-            left: 52, centerY: 0,
+            left: 10, centerY: 0,
             font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
             // textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
             textColor: '#3b283e'
         }).appendTo(cell);
         var settingsView = new ImageView({
             right: 10, top: 10, bottom: 10,
-            image: 'icons/settings_dark.png'
+            // image: 'icons/settings_dark.png'
+            image: 'icons/acorn.png'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
                 // imageView.set('image', 'icons/repository.png');
-                imageView.set('image', 'icons/acorn.png');
+                // imageView.set('image', 'icons/acorn.png');
                 textView.set('text', repo.name);
         });
         cell.on('select', function ({ value: repo }) {
             // imageView.set('image', 'icons/repository.png');
-            imageView.set('image', 'icons/acorn.png');
+            // imageView.set('image', 'icons/acorn.png');
             textView.set('text', repo.name);
         });
     }
