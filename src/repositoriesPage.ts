@@ -6,6 +6,8 @@ export default class RepositoriesPage extends Page {
 
     private static NEW_REPOSITORY = "Add new repository ...";
 
+    private imageView: ImageView;
+
     private collectionView: CollectionView;
 
     private navigationView: NavigationView;
@@ -24,13 +26,23 @@ export default class RepositoriesPage extends Page {
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
+        this.imageView = this.createLogo();
         this.collectionView = this.createRepositoriesCollection();
         this.collectionView.appendTo(this);
     }
 
+    private createLogo(): ImageView {
+        return new ImageView({
+            top: 10, centerX: 0,
+            id: 'logo',
+            background: '#f3f4e4',
+            image: 'icons/squirrel_200.png'
+        }).appendTo(this);
+    }
+
     private createRepositoriesCollection() {
         return new CollectionView({
-            left: 0, top: 0, right: 0, bottom: 0,
+            left: 10, top: ['#logo', 20], right: 0, bottom: 0,
             id: 'repositoriesCollection',
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,
@@ -43,6 +55,7 @@ export default class RepositoriesPage extends Page {
                 let rootFolderId = session.defaultRepository.rootFolderId;
                 new FolderPage(rootFolderId, this.navigationView,
                     {
+                        // background: '#f3f4e4',
                         title: '/'
                     });
             }),
@@ -61,7 +74,8 @@ export default class RepositoriesPage extends Page {
         var textView = new TextView({
             left: 52, centerY: 0,
             font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
-            textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
+            // textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
+            textColor: '#3b283e'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
             if (repo.name == RepositoriesPage.NEW_REPOSITORY) {

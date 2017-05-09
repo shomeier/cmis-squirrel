@@ -68,6 +68,7 @@ export default class FolderPage extends Page {
             if (item.cmisBaseTypeId == 'cmis:folder') {
                 let folderPage = new FolderPage(item.cmisObjectId, this.navigationView,
                     {
+                        // background: '#f3f4e4',
                         title: item.cmisName
                     });
             } else if (item.cmisBaseTypeId == 'cmis:document') {
@@ -89,8 +90,9 @@ export default class FolderPage extends Page {
 
     private initializeCell(cell: Cell):void {
         new Composite({
-            left: 10, right: 10, bottom: 0, height: 1,
-            background: '#bbb'
+            left: 20, right: 20, bottom: 0, height: 1,
+            // background: '#bbb'
+            background: '#3b283e'
         }).appendTo(cell);
         let icon = new ImageView({
             left: 10, top: 10, bottom: 10,
@@ -99,7 +101,8 @@ export default class FolderPage extends Page {
         let objectName = new TextView({
             left: 60, top: 8,
             id: 'objectName',
-            textColor: '#4a4a4a'
+            // textColor: '#4a4a4a'
+            textColor: '#3b283e'
         }).appendTo(cell);
         let objectSize = new TextView({
             left: 60, top: ["#objectName", 6],

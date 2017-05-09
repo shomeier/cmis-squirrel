@@ -10,5 +10,6 @@ let contentNavigationView = new NavigationView({
 
 let repositoriesPage = new RepositoriesPage(contentNavigationView, {
   title: 'CMIS Repositories',
+  background: '#f3f4e4',
   id: 'repositoriesPage'
 }).appendTo(contentNavigationView);
