@@ -102,7 +102,8 @@ export default class FolderPage extends Page {
         new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
-            background: '#3b283e'
+            // background: '#3b283e'
+            background: '#d2cab5'
         }).appendTo(cell);
         let icon = new ImageView({
             left: 10, top: 10, bottom: 10,
