@@ -1,4 +1,4 @@
-import { ActivityIndicator, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
+import { ActivityIndicator, Button, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
 import PropertisPage from './propertiesPage';
 const roundTo = require('round-to');
@@ -7,6 +7,8 @@ declare var cordova: any;
 export default class FolderPage extends Page {
 
     private folderId: string;
+
+    private button: Button;
 
     private collectionView: CollectionView;
 
@@ -48,6 +50,14 @@ export default class FolderPage extends Page {
             this.collectionView = this.createContentCollectionView(tmpData);
             this.collectionView.appendTo(this);
 
+            this.button = new Button({
+                // top: ['#contentCollectionView', 10], centerX: 0, width: ,
+                top: ['#contentCollectionView', 10], left: 10, right: 10,
+                background: '#3b283e',
+                textColor: '#f3f4e4',
+                text: 'Upload'
+            }).appendTo(this);
+
             this.activityIndicator.visible = false;
         });
     }
@@ -55,7 +65,7 @@ export default class FolderPage extends Page {
     private createContentCollectionView(data: any[]) {
         let navigationView = this.navigationView;
         return new CollectionView({
-            left: 0, top: 0, right: 0, bottom: 0,
+            left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
             items: data,
             initializeCell: this.initializeCell,
@@ -88,7 +98,7 @@ export default class FolderPage extends Page {
         });
     }
 
-    private initializeCell(cell: Cell):void {
+    private initializeCell(cell: Cell): void {
         new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
