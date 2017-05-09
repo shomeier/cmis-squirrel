@@ -65,6 +65,7 @@ export default class FolderPage extends Page {
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
+                    CmisSession.getSession().createDocument(folderId, imageData, 'test_upload');
             }, (err) => {
                 console.log('Camera error ...');
                 console.log('Camera error: ' + JSON.stringify(err));

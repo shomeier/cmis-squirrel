@@ -497,6 +497,139 @@ export namespace cmis {
         };
 
         /**
+    * creates a new document
+    *
+    * @param {String} parentId
+    * @param {String/Buffer/Blob} content
+    * @param {String/Object} input
+    * if `input` is a string used as the document name,
+    * if `input` is an object it must contain required properties:
+    *   {'cmis:name': 'docName', 'cmis:objectTypeId': 'cmis:document'}
+    * @param {String} mimeTypeExtension extension corresponding to mimeType.
+    * example: 'pdf', 'png', 'jpg',
+    * use this param if your filename does not have a standard extension (tested only with Alfresco)
+    * @param {String} versioningState  (if set must be one of: "none", "major", "minor", "checkedout")
+    * @param {Array} policies
+    * @param {Object} addACEs
+    * @param {Object} removeACEs
+    * @param {Object} options (possible options: succinct, token)
+    * @return {CmisRequest}
+    */
+        // TODO: Improve
+        public createDocument(parentId: string, content: any, input: string, options?: any) {
+            //   var options = _fill(options);
+            if (!options) {
+                options = {};
+            }
+            
+            let newInput;
+            if ('string' == typeof input) {
+                newInput = {
+                    'cmis:name': input
+                };
+            }
+            var properties = newInput || {};
+            if (!properties['cmis:objectTypeId']) {
+                properties['cmis:objectTypeId'] = 'cmis:document';
+            }
+            // if (versioningState) {
+            //     options.versioningState = versioningState;
+            // }
+
+            options.objectId = parentId;
+            this.setProperties(properties, options);
+            //   if (policies) {
+            //     this.setPolicies(policies, options);
+            //   }
+            //   if (addACEs) {
+            //     this.setACEs(addACEs, 'add', options);
+            //   }
+            //   if (removeACEs) {
+            //     this.setACEs(removeACEs, 'remove', options);
+            //   }
+            options.repositoryId = this.defaultRepository.repositoryId;
+            options.cmisaction = 'createDocument';
+
+            // return _postMultipart(this.defaultRepository.rootFolderUrl,
+            return this.sendData(this.defaultRepository.rootFolderUrl,
+                options, content, properties['cmis:name']);
+
+        };
+
+        private sendData(url, options, content, filename) {
+
+            let usp = "";
+            for (let k in options) {
+                if (options[k] != null && options[k] !== undefined) {
+                    //   usp.append(k, options[k]);
+                    if (k != "constructor") {
+                        if (usp.length == 0) {
+                            usp = k + "=" + options[k];
+                        } else {
+                            usp += "&" + k + "=" + options[k];
+                        }
+                    }
+                }
+            }
+
+            for (let k in this.options) {
+                // if (!usp.has(k) && this.options[k] != null && this.options[k] !== undefined) {
+                //   usp.append(k, this.options[k]);
+                // }
+            }
+
+            let auth: string;
+
+            if (this.username && this.password) {
+                auth = 'Basic ' + btoa(`${this.username}:${this.password}`);
+                console.log("Auth: " + auth);
+            } else if (this.token) {
+                auth = `Bearer ${this.token}`;
+            }
+
+            let formData = new FormData();
+            formData.append('content', new Blob(content));
+            let cfg: RequestInit = { method: 'POST' };
+            if (auth) {
+                cfg.headers = {
+                    'Authorization': auth
+                };
+            } else {
+                cfg.credentials = 'include';
+            }
+            cfg.body
+
+            let tmp = `${url}?${usp.toString()}`;
+            console.log("Temp: " + tmp);
+            let response = fetch(`${url}?${usp.toString()}`, cfg).then(res => {
+                if (res.status < 200 || res.status > 299) {
+                    console.log("Errorrrrooooorrrr....")
+                    throw new HTTPError(res);
+                }
+                return res;
+            });
+
+            if (this.errorHandler) {
+                response.catch(this.errorHandler);
+            }
+
+            return response;
+
+            // var formData = new FormData();
+            // formData.append('blob', new Blob(['Hello World!\n']), 'test')
+
+            // for (var name in data) {
+            //     formData.append(name, data[name]);
+            // }
+
+            // fetch(url, {
+            //     method: 'POST',
+            //     body: formData
+            // }).then(function (response) {
+            // });
+        }
+
+        /**
          * Updates a type definition
          * @param {any} type
          * @return {Promise<any>}
