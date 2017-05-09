@@ -37,7 +37,7 @@ export default class FolderPage extends Page {
                 tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
                 tmp.cmisBaseTypeId = cmisObjects[i].object.properties['cmis:baseTypeId'].value;
                 if (cmisObjects[i].object.properties['cmis:contentStreamLength']) {
-                    tmp.cmisContentStreamFileSize = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
+                    tmp.cmisContentStreamLength = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
                 }
                 tmpData[i] = tmp;
                 // console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
@@ -75,7 +75,7 @@ export default class FolderPage extends Page {
                 this.openContent(item.cmisObjectId, item.cmisName);
             }
             console.log("Created sub content page ...");
-        }).on('longpress', function ({target}) {
+        }).on('longpress', function ({ target }) {
             console.log("LONGPRESS ON SELECTION VIEW !!!!!!");
             console.log("ITEM: " + JSON.stringify(target.item));
             // TODO: Open another page with metdata/properties here
@@ -87,42 +87,44 @@ export default class FolderPage extends Page {
         });
     }
 
-    private initializeCell(cell: Cell) {
+    private initializeCell(cell: Cell):void {
         new Composite({
             left: 10, right: 10, bottom: 0, height: 1,
             background: '#bbb'
         }).appendTo(cell);
-        var icon = new ImageView({
+        let icon = new ImageView({
             left: 10, top: 10, bottom: 10,
             scaleMode: 'fit'
         }).appendTo(cell);
-        var objectName = new TextView({
+        let objectName = new TextView({
             left: 60, top: 8,
             id: 'objectName',
             textColor: '#4a4a4a'
         }).appendTo(cell);
-        var objectSize = new TextView({
+        let objectSize = new TextView({
             left: 60, top: ["#objectName", 6],
             markupEnabled: true,
             textColor: '#9a9a9a'
         }).appendTo(cell);
-        cell.on('change:item', function ({ value: item }) {
+        cell.on('change:item', ({ value: item }) => {
+            // TODO: Still a bug here: Sometimes file size is added to folder types
+            // Mybe bug in Tabris.js framework ?!?
             if (item.cmisBaseTypeId == 'cmis:document') {
                 icon.set('image', 'icons/document.png');
+                if (item.cmisContentStreamLength) {
+                    let size: number = item.cmisContentStreamLength;
+                    if (size < 1024) {
+                        objectSize.set('text', size + ' Byte');
+                    } else if (size < 1048576) {
+                        objectSize.set('text', roundTo((size / 1024), 1) + ' KB');
+                    } else if (size < 1073741824) {
+                        objectSize.set('text', roundTo((size / 1048576), 1) + ' MB');
+                    }
+                }
             } else {
                 icon.set('image', 'icons/folder.png');
             }
             objectName.set('text', item.cmisName);
-            if (item.cmisContentStreamFileSize) {
-                let size: number = item.cmisContentStreamFileSize
-                if (size < 1024) {
-                    objectSize.set('text', size + ' Byte');
-                } else if (size < 1048576) {
-                    objectSize.set('text', roundTo((size / 1024), 1) + ' KB');
-                } else if (size < 1073741824) {
-                    objectSize.set('text', roundTo((size / 1048576), 1) + ' MB');
-                }
-            }
         });
         cell.on('select', function ({ value: item }) {
             console.log("CELL SELECTED !!!!!!")
