@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="shorty.cmis.tabris" version="0.1.0">
-    <name>Mobile CMIS Client</name>
+    <name>CMIS Squirrel</name>
     <description>
-    Mobile CMIS Client
+    Mobile CMIS Client for AtomPub bindings
   </description>
     <author email="sascha.homeier@gmail.com">
     Sascha Homeier

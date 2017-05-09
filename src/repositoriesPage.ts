@@ -1,10 +1,10 @@
-import { CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
 import CmisSession from './cmisSession'
 import FolderPage from './folderPage';
 
 export default class RepositoriesPage extends Page {
 
-    private static NEW_REPOSITORY = "Add new repository ...";
+    private button: Button;
 
     private imageView: ImageView;
 
@@ -18,10 +18,8 @@ export default class RepositoriesPage extends Page {
             url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
             user: "admin",
             password: "admin"
-        },
-        {
-            name: RepositoriesPage.NEW_REPOSITORY
-        }];
+        }
+        ];
 
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
@@ -29,20 +27,26 @@ export default class RepositoriesPage extends Page {
         this.imageView = this.createLogo();
         this.collectionView = this.createRepositoriesCollection();
         this.collectionView.appendTo(this);
+        this.button = new Button({
+            top: ['#repositoriesCollection', 10], centerX: 0,
+            background: '#3b283e',
+            textColor: '#f3f4e4',
+            text: 'Add New Repository'
+        }).appendTo(this);
     }
 
     private createLogo(): ImageView {
         return new ImageView({
             top: 10, centerX: 0,
             id: 'logo',
-            background: '#f3f4e4',
+            // background: '#f3f4e4',
             image: 'icons/squirrel_200.png'
         }).appendTo(this);
     }
 
     private createRepositoriesCollection() {
         return new CollectionView({
-            left: 10, top: ['#logo', 20], right: 0, bottom: 0,
+            left: 10, top: ['#logo', 20], right: 0, bottom: 80,
             id: 'repositoriesCollection',
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,
@@ -78,13 +82,8 @@ export default class RepositoriesPage extends Page {
             textColor: '#3b283e'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
-            if (repo.name == RepositoriesPage.NEW_REPOSITORY) {
-                imageView.set('image', 'icons/newRepository.png');
-                textView.set('text', RepositoriesPage.NEW_REPOSITORY);
-            } else {
                 imageView.set('image', 'icons/repository.png');
                 textView.set('text', repo.name);
-            }
         });
         cell.on('select', function ({ value: repo }) {
             imageView.set('image', 'icons/repository.png');

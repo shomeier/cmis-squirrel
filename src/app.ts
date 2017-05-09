@@ -8,8 +8,10 @@ let contentNavigationView = new NavigationView({
   id: 'contentNavigationView'
 }).appendTo(ui.contentView);
 
+// squirrel bg: '#f3f4e4'
+// squirrel itself (dark brown):  '#3b283e'
 let repositoriesPage = new RepositoriesPage(contentNavigationView, {
-  title: 'CMIS Repositories',
+  title: 'CMIS Squirrel',
   background: '#f3f4e4',
   id: 'repositoriesPage'
 }).appendTo(contentNavigationView);
