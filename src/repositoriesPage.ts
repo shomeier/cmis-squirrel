@@ -37,7 +37,7 @@ export default class RepositoriesPage extends Page {
 
     private createLogo(): ImageView {
         return new ImageView({
-            top: 10, centerX: 0,
+            top: 30, centerX: 0,
             id: 'logo',
             // background: '#f3f4e4',
             image: 'icons/squirrel_200.png'
@@ -46,7 +46,7 @@ export default class RepositoriesPage extends Page {
 
     private createRepositoriesCollection() {
         return new CollectionView({
-            left: 10, top: ['#logo', 20], right: 0, bottom: 80,
+            left: 10, top: ['#logo', 30], right: 0, bottom: 80,
             id: 'repositoriesCollection',
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,
@@ -69,8 +69,9 @@ export default class RepositoriesPage extends Page {
 
     private initializeCell(cell) {
         new Composite({
-            left: 0, right: 0, bottom: 0, height: 1,
-            background: '#bbb'
+            left: 20, right: 20, bottom: 0, height: 1,
+            // background: '#bbb'
+            background: '#d2cab5'
         }).appendTo(cell);
         var imageView = new ImageView({
             left: 10, top: 10, bottom: 10
@@ -82,11 +83,13 @@ export default class RepositoriesPage extends Page {
             textColor: '#3b283e'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
-                imageView.set('image', 'icons/repository.png');
+                // imageView.set('image', 'icons/repository.png');
+                imageView.set('image', 'icons/acorn.png');
                 textView.set('text', repo.name);
         });
         cell.on('select', function ({ value: repo }) {
-            imageView.set('image', 'icons/repository.png');
+            // imageView.set('image', 'icons/repository.png');
+            imageView.set('image', 'icons/acorn.png');
             textView.set('text', repo.name);
         });
     }

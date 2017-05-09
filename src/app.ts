@@ -10,6 +10,7 @@ let contentNavigationView = new NavigationView({
 
 // squirrel bg: '#f3f4e4'
 // squirrel itself (dark brown):  '#3b283e'
+// squirrel shadow: '#d2cab5'
 let repositoriesPage = new RepositoriesPage(contentNavigationView, {
   title: 'CMIS Squirrel',
   background: '#f3f4e4',

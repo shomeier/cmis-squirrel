@@ -110,7 +110,7 @@ export default class FolderPage extends Page {
             textColor: '#9a9a9a'
         }).appendTo(cell);
         cell.on('change:item', ({ value: item }) => {
-            // TODO: Still a bug here: Sometimes file size is added to folder types
+            // TODO: Still a bug here: Sometimes file size is added to folder types when scrolling
             // Mybe bug in Tabris.js framework ?!?
             if (item.cmisBaseTypeId == 'cmis:document') {
                 icon.set('image', 'icons/document.png');
