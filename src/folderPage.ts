@@ -56,6 +56,20 @@ export default class FolderPage extends Page {
                 background: '#3b283e',
                 textColor: '#f3f4e4',
                 text: 'Upload'
+            }).on('select', () => {
+                console.log('Upload button pressed ...');
+                let options = {
+                    'destinationType': Camera.DestinationType.FILE_URI,
+                    'sourceType':  Camera.PictureSourceType.PHOTOLIBRARY
+                };
+                navigator.camera.getPicture((imageData) => {
+                    console.log('Camera Success ...');
+                    console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
+            }, (err) => {
+                console.log('Camera error ...');
+                console.log('Camera error: ' + JSON.stringify(err));
+            },
+                options);
             }).appendTo(this);
 
             this.activityIndicator.visible = false;
