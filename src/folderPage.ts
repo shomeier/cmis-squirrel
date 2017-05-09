@@ -1,6 +1,6 @@
 import { ActivityIndicator, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
-import { cmis } from './lib/cmis';
+import PropertisPage from './propertiesPage';
 const roundTo = require('round-to');
 declare var cordova: any;
 
@@ -11,7 +11,7 @@ export default class FolderPage extends Page {
     private collectionView: CollectionView;
 
     private navigationView: NavigationView;
-    
+
     private activityIndicator: ActivityIndicator;
 
     constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
@@ -32,7 +32,7 @@ export default class FolderPage extends Page {
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
                 // console.log(i + " ----------------------------------");
-                let tmp:any = {};
+                let tmp: any = {};
                 tmp.cmisObjectId = cmisObjects[i].object.properties['cmis:objectId'].value;
                 tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
                 tmp.cmisBaseTypeId = cmisObjects[i].object.properties['cmis:baseTypeId'].value;
@@ -53,6 +53,7 @@ export default class FolderPage extends Page {
     }
 
     private createContentCollectionView(data: any[]) {
+        let navigationView = this.navigationView;
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 0,
             id: 'contentCollectionView',
@@ -74,10 +75,19 @@ export default class FolderPage extends Page {
                 this.openContent(item.cmisObjectId, item.cmisName);
             }
             console.log("Created sub content page ...");
+        }).on('longpress', function ({target}) {
+            console.log("LONGPRESS ON SELECTION VIEW !!!!!!");
+            console.log("ITEM: " + JSON.stringify(target.item));
+            // TODO: Open another page with metdata/properties here
+            // Currently does not work propely: 'select' event interferes with 'longpress' somehow
+            // new PropertisPage(target.item.cmisObjectId, navigationView,
+            //     {
+            //         title: target.item.cmisName
+            //     });
         });
     }
 
-    private initializeCell(cell:Cell) {
+    private initializeCell(cell: Cell) {
         new Composite({
             left: 10, right: 10, bottom: 0, height: 1,
             background: '#bbb'
@@ -87,8 +97,7 @@ export default class FolderPage extends Page {
             scaleMode: 'fit'
         }).appendTo(cell);
         var objectName = new TextView({
-            left: 60, right: 60, top: 8,
-            markupEnabled: true,
+            left: 60, top: 8,
             id: 'objectName',
             textColor: '#4a4a4a'
         }).appendTo(cell);
@@ -105,12 +114,12 @@ export default class FolderPage extends Page {
             }
             objectName.set('text', item.cmisName);
             if (item.cmisContentStreamFileSize) {
-                let size:number = item.cmisContentStreamFileSize
+                let size: number = item.cmisContentStreamFileSize
                 if (size < 1024) {
                     objectSize.set('text', size + ' Byte');
-                } else if (size <  1048576) {
+                } else if (size < 1048576) {
                     objectSize.set('text', roundTo((size / 1024), 1) + ' KB');
-                } else if (size <  1073741824) {
+                } else if (size < 1073741824) {
                     objectSize.set('text', roundTo((size / 1048576), 1) + ' MB');
                 }
             }
@@ -120,6 +129,16 @@ export default class FolderPage extends Page {
             icon.set('image', 'icons/Cloud-50.png');
             objectName.set('text', item.cmisBaseTypeId);
         });
+        // let navigationView = this.navigationView;
+        // cell.on('longpress', function ({target}) {
+        //     console.log("LONGPRESS ON CELL !!!!!!");
+        //     console.log("ITEM: " + JSON.stringify(target.item));
+        //     // TODO: Open another page with metdata/properties here
+        //     new PropertisPage(target.item.cmisObjectId, navigationView,
+        //         {
+        //             title: target.item.cmisName
+        //         });
+        // });
     }
 
     private openContent(fileId: string, fileName: string): void {
