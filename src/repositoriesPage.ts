@@ -82,6 +82,10 @@ export default class RepositoriesPage extends Page {
             // textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
             textColor: '#3b283e'
         }).appendTo(cell);
+        var settingsView = new ImageView({
+            right: 10, top: 10, bottom: 10,
+            image: 'icons/settings_dark.png'
+        }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
                 // imageView.set('image', 'icons/repository.png');
                 imageView.set('image', 'icons/acorn.png');
