@@ -4,16 +4,22 @@ import FolderPage from './folderPage';
 
 export default class RepositoriesPage extends Page {
 
+    private static NEW_REPOSITORY = "Add new repository ...";
+
     private collectionView: CollectionView;
 
     private navigationView: NavigationView;
 
-    private exampleData = [{
-        name: "Alfresco CMIS Demo",
-        url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
-        user: "admin",
-        password: "admin"
-    }];
+    private exampleData = [
+        {
+            name: "Alfresco CMIS Demo",
+            url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
+            user: "admin",
+            password: "admin"
+        },
+        {
+            name: RepositoriesPage.NEW_REPOSITORY
+        }];
 
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
@@ -40,7 +46,7 @@ export default class RepositoriesPage extends Page {
                         title: '/'
                     });
             }),
-            (err) => console.log(err)
+                (err) => console.log(err)
         });
     }
 
@@ -58,8 +64,13 @@ export default class RepositoriesPage extends Page {
             textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
         }).appendTo(cell);
         cell.on('change:item', function ({ value: repo }) {
-            imageView.set('image', 'icons/repository.png');
-            textView.set('text', repo.name);
+            if (repo.name == RepositoriesPage.NEW_REPOSITORY) {
+                imageView.set('image', 'icons/newRepository.png');
+                textView.set('text', RepositoriesPage.NEW_REPOSITORY);
+            } else {
+                imageView.set('image', 'icons/repository.png');
+                textView.set('text', repo.name);
+            }
         });
         cell.on('select', function ({ value: repo }) {
             imageView.set('image', 'icons/repository.png');
