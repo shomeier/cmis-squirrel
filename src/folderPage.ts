@@ -58,19 +58,19 @@ export default class FolderPage extends Page {
                 text: 'Upload'
             }).on('select', () => {
                 console.log('Upload button pressed ...');
-            //     let options = {
-            //         'destinationType': Camera.DestinationType.FILE_URI,
-            //         'sourceType':  Camera.PictureSourceType.PHOTOLIBRARY
-            //     };
-            //     navigator.camera.getPicture((imageData) => {
-            //         console.log('Camera Success ...');
-            //         console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
-            //         CmisSession.getSession().createDocument(folderId, imageData, 'test_upload');
-            // }, (err) => {
-            //     console.log('Camera error ...');
-            //     console.log('Camera error: ' + JSON.stringify(err));
-            // },
-            //     options);
+                let options = {
+                    'destinationType': Camera.DestinationType.FILE_URI,
+                    'sourceType':  Camera.PictureSourceType.PHOTOLIBRARY
+                };
+                navigator.camera.getPicture((imageData) => {
+                    console.log('Camera Success ...');
+                    console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
+                    CmisSession.getSession().createDocument(folderId, imageData, 'test_upload');
+            }, (err) => {
+                console.log('Camera error ...');
+                console.log('Camera error: ' + JSON.stringify(err));
+            },
+                options);
             }
             ).appendTo(this);
 
