@@ -121,12 +121,17 @@ export namespace cmis {
         private url: string;
         private token: string;
         private username: string;
+        private authHeader: string;
         private errorHandler: (err: Error) => void;
         private password: string;
         private options: Options = new Options();
         public defaultRepository: any;
         public repositories: Array<any>;
 
+
+        public getAuthHeader():string {
+            return this.authHeader;
+        }
 
         /**
          * format properties for requests
@@ -253,6 +258,7 @@ export namespace cmis {
 
             let cfg: RequestInit = { method: method };
             if (auth) {
+                this.authHeader = auth;
                 cfg.headers = {
                     'Authorization': auth
                 };

@@ -14,10 +14,16 @@ export default class RepositoriesPage extends Page {
 
     private exampleData = [
         {
-            name: "Alfresco CMIS Demo",
+            name: "Alfresco CMIS Demo Server",
             url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
             user: "admin",
             password: "admin"
+        },
+        {
+            name: "apollon CMIS Server",
+            url: "http://192.168.1.102:8083/cmisBrowser",
+            user: 'XXXX',
+            password: 'XXXXXX'
         }
         ];
 
@@ -37,7 +43,7 @@ export default class RepositoriesPage extends Page {
 
     private createLogo(): ImageView {
         return new ImageView({
-            top: 30, centerX: 0,
+            top: 50, centerX: 0,
             id: 'logo',
             // background: '#f3f4e4',
             image: 'icons/squirrel_200.png'
@@ -46,7 +52,7 @@ export default class RepositoriesPage extends Page {
 
     private createRepositoriesCollection() {
         return new CollectionView({
-            left: 10, top: ['#logo', 30], right: 0, bottom: 80,
+            left: 10, top: ['#logo', 50], right: 0, bottom: 80,
             id: 'repositoriesCollection',
             items: this.getRepositoriesData(),
             initializeCell: this.initializeCell,

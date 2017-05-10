@@ -152,6 +152,8 @@ export default class FolderPage extends Page {
                 }
             } else {
                 icon.set('image', 'icons/folder.png');
+                // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
+                objectSize.set('text', ' ');
             }
             objectName.set('text', item.cmisName);
         });
@@ -181,7 +183,8 @@ export default class FolderPage extends Page {
         activityIndicator.visible = true;
         contentColView.enabled = false;
 
-        let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
+        // let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
+        let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
         // let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
         let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
@@ -209,7 +212,8 @@ export default class FolderPage extends Page {
             false,
             {
                 headers: {
-                    "Authorization": "Basic YWRtaW46YWRtaW4="
+                    // "Authorization": "Basic YWRtaW46YWRtaW4="
+                    "Authorization": CmisSession.getSession().getAuthHeader()
                 }
             }
         );
