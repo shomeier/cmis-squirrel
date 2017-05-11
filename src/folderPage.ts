@@ -60,19 +60,43 @@ export default class FolderPage extends Page {
                 console.log('Upload button pressed ...');
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType':  Camera.PictureSourceType.PHOTOLIBRARY
+                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY
                 };
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
-                    CmisSession.getSession().createDocument(folderId, imageData, 'test_upload');
-            }, (err) => {
-                console.log('Camera error ...');
-                console.log('Camera error: ' + JSON.stringify(err));
-            },
-                options);
+                    //  window.resolveLocalFileSystemURL(cordova.file.applicationDirectory + "www/index.html", gotFile, fail);
+                    window.resolveLocalFileSystemURL(imageData, (fileEntry: FileEntry) => {
+                        console.log("Got file ...");
+                        // console.log("fileEntry: " + JSON.stringify(fileEntry));
+                        fileEntry.file((file) => {
+                            // console.log("file: " + JSON.stringify(file));
+                            let reader = new FileReader();
+                            reader.onloadend = function (e) {
+                                // console.log("Text is: " + this.result);
+                                CmisSession.getSession().createDocument(folderId, this.result, 'test_upload').then((response) => {
+                                    console.log('Created Document...');
+                                    console.log('Response: ' + JSON.stringify(response));
+                                });
+
+                            }
+                            reader.readAsBinaryString(file);
+                        });
+                    }, (e) => {
+                        console.log("Failed reading file ...");
+                        console.log("e: " + JSON.stringify(e));
+                    });
+                    // CmisSession.getSession().createDocument(folderId, imageData, 'test_upload').then((response) => {
+                    //     console.log('Created Document...');
+                    //     console.log('Response: ' + JSON.stringify(response));
+                    // });
+                }, (err) => {
+                    console.log('Camera error ...');
+                    console.log('Camera error: ' + JSON.stringify(err));
+                },
+                    options);
             }
-            ).appendTo(this);
+                ).appendTo(this);
 
             this.activityIndicator.visible = false;
         });

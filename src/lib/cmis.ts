@@ -2,6 +2,7 @@
 // import { URLSearchParams } from 'urlsearchparams';
 // import { btoa } from 'isomorphic-base64';
 // import { FormData } from 'form-data';
+// declare var fileEntry: any;
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 function btoa(input) {
@@ -129,7 +130,7 @@ export namespace cmis {
         public repositories: Array<any>;
 
 
-        public getAuthHeader():string {
+        public getAuthHeader(): string {
             return this.authHeader;
         }
 
@@ -523,7 +524,7 @@ export namespace cmis {
     * @return {CmisRequest}
     */
         // TODO: Improve
-        public createDocument(parentId: string, content: any, input: string, options?: any) {
+        public createDocument(parentId: string, content: any, input: string, options?: any): Promise<Response> {
             //   var options = _fill(options);
             if (!options) {
                 options = {};
@@ -563,7 +564,7 @@ export namespace cmis {
 
         };
 
-        private sendData(url, options, content, filename) {
+        private sendData(url, options, content, filename): Promise<Response> {
 
             let usp = "";
             for (let k in options) {
@@ -594,26 +595,75 @@ export namespace cmis {
                 auth = `Bearer ${this.token}`;
             }
 
-            let formData = new FormData();
-            formData.append('content', new Blob(content));
+            // let formData = new FormData();
+            // formData.append('content', new Blob(content));
+            // let boundary:string = 'XXX' + Math.random.toString;
+            let boundary: string = 'XXX';
             let cfg: RequestInit = { method: 'POST' };
             if (auth) {
                 cfg.headers = {
-                    'Authorization': auth
+                    'Authorization': auth,
+                    'Content-Type': "multipart/form-data; charset=utf-8; boundary=" + boundary
+                    // 'Content-Type': 'application/x-www-form-urlencoded; boundary=' + boundary
                 };
             } else {
                 cfg.credentials = 'include';
             }
-            cfg.body
+            let body: string = '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="cmisaction"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "createDocument\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="propertyId[0]"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "cmis:objectTypeId\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="propertyValue[0]"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "cmis:document\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="propertyId[1]"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "cmis:name\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="propertyValue[1]"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "sample2.jpg\r\n"
+                + '--' + boundary + "\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="succinct"\r\n'
+                + 'Content-Type: text/plain; charset=utf-8\r\n'
+                + "\r\n"
+                + "true\r\n"
+                + '--' + boundary + "\r\n"
+                + 'Content-Disposition: form-data; name="content"; filename=testUpload.jpg\r\n'
+                + 'Content-Type: image/jpeg\r\n'
+                + 'Content-Transfer-Encoding: binary\r\n'
+                + "\r\n"
+                + content + "\r\n"
+                + '--' + boundary + "--\r\n";
+            // + "Content-Type: application/octet-stream\r\n' + '\r\n' + content + '\r\n' + '--' + boundary + '--';
+
+            cfg.body = body;
+
 
             let tmp = `${url}?${usp.toString()}`;
             console.log("Temp: " + tmp);
-            let response = fetch(`${url}?${usp.toString()}`, cfg).then(res => {
+            let response = fetch(tmp, cfg).then((res) => {
+                console.log("WE ARE HERE ....");
                 if (res.status < 200 || res.status > 299) {
                     console.log("Errorrrrooooorrrr....")
                     throw new HTTPError(res);
                 }
                 return res;
+            }).catch((err) => {
+                console.log("In err ...");
+                console.log("err: " + JSON.stringify(err));
             });
 
             if (this.errorHandler) {

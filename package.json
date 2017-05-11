@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/cordova-plugin-camera": "^0.0.3",
+    "@types/cordova-plugin-file": "^0.0.3",
     "@types/cordova-plugin-file-transfer": "^0.0.3",
     "@types/node": "^7.0.18",
     "es6-promise": "^4.1.0",

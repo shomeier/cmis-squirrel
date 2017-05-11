@@ -22,8 +22,8 @@ export default class RepositoriesPage extends Page {
         {
             name: "apollon CMIS Server",
             url: "http://192.168.1.102:8083/cmisBrowser",
-            user: 'XXXX',
-            password: 'XXXXXX'
+            user: 'test',
+            password: 'test'
         }
         ];
 
