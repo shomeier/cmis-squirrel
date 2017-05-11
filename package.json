@@ -13,7 +13,6 @@
     "tabris-js-node": "^0.1.0",
     "cordova": "^7.0.0",
     "cordova-js": "^4.2.1",
-    "cordova-plugin-camera": "^2.4.1",
     "cordova-plugin-file-transfer": "^1.6.3",
     "cordova-plugin-file-opener2": "^2.0.15",
     "form-data": "^2.1.1",
