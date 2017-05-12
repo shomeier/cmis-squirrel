@@ -1,4 +1,4 @@
-import { ActivityIndicator, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
+import { ActivityIndicator, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
 const roundTo = require('round-to');
 declare var cordova: any;
@@ -45,31 +45,33 @@ export default class PropertiesPage extends Page {
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 0,
             id: 'propertiesCollectionView',
-            items: data,
-            initializeCell: this.initializeCell,
-            itemHeight: device.platform === 'iOS' ? 60 : 68
+            // items: data,
+            createCell: this.initializeCell,
+            // itemHeight: device.platform === 'iOS' ? 60 : 68
         });
     }
 
-    private initializeCell(cell: Cell) {
-        new Composite({
+    private initializeCell(cellType:string):Widget {
+        let cmp = new Composite({
             left: 10, right: 10, bottom: 0, height: 1,
             background: '#bbb'
-        }).appendTo(cell);
+        });
         var keyText = new TextView({
             left: 10, top: 5,
             id: 'objectName',
             textColor: '#4a4a4a'
-        }).appendTo(cell);
+        }).appendTo(cmp);
         var valueText = new TextView({
             left: 100, top: 5,
             markupEnabled: true,
             textColor: '#9a9a9a'
-        }).appendTo(cell);
-        cell.on('change:item', function ({ value: item }) {
+        }).appendTo(cmp);
+        cmp.on('change:item', function ({ value: item }) {
             keyText.set('text', item.key);
             valueText.set('text', item.value)
         });
+
+        return cmp;
     }
 
 }

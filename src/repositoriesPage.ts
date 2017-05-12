@@ -1,4 +1,4 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, device } from 'tabris';
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, Widget, device } from 'tabris';
 import CmisSession from './cmisSession'
 import FolderPage from './folderPage';
 
@@ -54,9 +54,9 @@ export default class RepositoriesPage extends Page {
         return new CollectionView({
             left: 10, top: ['#logo', 50], right: 0, bottom: 80,
             id: 'repositoriesCollection',
-            items: this.getRepositoriesData(),
-            initializeCell: this.initializeCell,
-            itemHeight: device.platform === 'iOS' ? 40 : 48
+            // items: this.getRepositoriesData(),
+            createCell: this.initializeCell
+            // itemHeight: device.platform === 'iOS' ? 40 : 48
         }).on('select', ({ item }) => {
             console.log('selected XXX: ' + JSON.stringify(item));
             CmisSession.init(item.url, item.user, item.password, () => {
@@ -73,12 +73,12 @@ export default class RepositoriesPage extends Page {
         });
     }
 
-    private initializeCell(cell) {
-        new Composite({
+    private initializeCell(cellType:string):Widget {
+        let cmp = new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
             background: '#d2cab5'
-        }).appendTo(cell);
+        });
         // var imageView = new ImageView({
         //     left: 10, top: 10, bottom: 10
         // }).appendTo(cell);
@@ -87,22 +87,23 @@ export default class RepositoriesPage extends Page {
             font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
             // textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
             textColor: '#3b283e'
-        }).appendTo(cell);
+        }).appendTo(cmp);
         var settingsView = new ImageView({
             right: 10, top: 10, bottom: 10,
             // image: 'icons/settings_dark.png'
             image: 'icons/acorn.png'
-        }).appendTo(cell);
-        cell.on('change:item', function ({ value: repo }) {
+        }).appendTo(cmp);
+        cmp.on('change:item', function ({ value: repo }) {
                 // imageView.set('image', 'icons/repository.png');
                 // imageView.set('image', 'icons/acorn.png');
                 textView.set('text', repo.name);
         });
-        cell.on('select', function ({ value: repo }) {
+        cmp.on('select', function ({ value: repo }) {
             // imageView.set('image', 'icons/repository.png');
             // imageView.set('image', 'icons/acorn.png');
             textView.set('text', repo.name);
         });
+        return cmp;
     }
 
     private getRepositoriesData() {

@@ -1,8 +1,11 @@
-import { ActivityIndicator, Button, CollectionView, Cell, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
+import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
 import PropertisPage from './propertiesPage';
 const roundTo = require('round-to');
 // const base64 = require('base64-js');
+declare var navigator: any;
+declare var FileTransfer: any;
+declare var FileUploadOptions: any;
 declare var cordova: any;
 declare var global: any;
 // declare var FileUploadOptions: any;
@@ -311,7 +314,7 @@ export default class FolderPage extends Page {
                     let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
                     let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
                     let fileTransfer = new FileTransfer();
-                    let fileUploadOptions: FileUploadOptions = {};
+                    let fileUploadOptions:any = {};
                     fileUploadOptions.headers = {
                         "Authorization": CmisSession.getSession().getAuthHeader()
                     };
@@ -429,9 +432,9 @@ export default class FolderPage extends Page {
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
-            items: data,
-            initializeCell: this.initializeCell,
-            itemHeight: device.platform === 'iOS' ? 60 : 68
+            // items: data,
+            createCell: this.initializeCell,
+            // itemHeight: device.platform === 'iOS' ? 60 : 68
         }).on('select', ({ item }) => {
             console.log("In Select EventHandler ...");
             console.log("Item selected: " + JSON.stringify(item));
@@ -460,29 +463,29 @@ export default class FolderPage extends Page {
         });
     }
 
-    private initializeCell(cell: Cell): void {
-        new Composite({
+    private initializeCell(cellType:string):Widget {
+        let cmp = new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
             // background: '#3b283e'
             background: '#d2cab5'
-        }).appendTo(cell);
+        });
         let icon = new ImageView({
             left: 10, top: 10, bottom: 10,
             scaleMode: 'fit'
-        }).appendTo(cell);
+        }).appendTo(cmp);
         let objectName = new TextView({
             left: 60, top: 8,
             id: 'objectName',
             // textColor: '#4a4a4a'
             textColor: '#3b283e'
-        }).appendTo(cell);
+        }).appendTo(cmp);
         let objectSize = new TextView({
             left: 60, top: ["#objectName", 6],
             markupEnabled: true,
             textColor: '#9a9a9a'
-        }).appendTo(cell);
-        cell.on('change:item', ({ value: item }) => {
+        }).appendTo(cmp);
+        cmp.on('change:item', ({ value: item }) => {
             // TODO: Still a bug here: Sometimes file size is added to folder types when scrolling
             // Mybe bug in Tabris.js framework ?!?
             if (item.cmisBaseTypeId == 'cmis:document') {
@@ -504,11 +507,13 @@ export default class FolderPage extends Page {
             }
             objectName.set('text', item.cmisName);
         });
-        cell.on('select', function ({ value: item }) {
+        cmp.on('select', function ({ value: item }) {
             console.log("CELL SELECTED !!!!!!")
             icon.set('image', 'icons/Cloud-50.png');
             objectName.set('text', item.cmisBaseTypeId);
         });
+
+        return cmp;
         // let navigationView = this.navigationView;
         // cell.on('longpress', function ({target}) {
         //     console.log("LONGPRESS ON CELL !!!!!!");
