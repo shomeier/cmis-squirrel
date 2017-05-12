@@ -598,11 +598,12 @@ export namespace cmis {
             // let formData = new FormData();
             // formData.append('content', new Blob(content));
             // let boundary:string = 'XXX' + Math.random.toString;
-            let boundary: string = 'XXX';
+            let boundary: string = 'xXXShorty---afizvBKfYy';
             let cfg: RequestInit = { method: 'POST' };
             if (auth) {
                 cfg.headers = {
                     'Authorization': auth,
+                    // 'Transfer-Encoding': 'chunked',
                     'Content-Type': "multipart/form-data; charset=utf-8; boundary=" + boundary
                     // 'Content-Type': 'application/x-www-form-urlencoded; boundary=' + boundary
                 };
@@ -633,16 +634,16 @@ export namespace cmis {
                 + 'Content-Disposition: form-data; name="propertyValue[1]"\r\n'
                 + 'Content-Type: text/plain; charset=utf-8\r\n'
                 + "\r\n"
-                + "sample2.jpg\r\n"
-                + '--' + boundary + "\r\n"
+                + "sample5.png\r\n"
                 + '--' + boundary + "\r\n"
                 + 'Content-Disposition: form-data; name="succinct"\r\n'
                 + 'Content-Type: text/plain; charset=utf-8\r\n'
                 + "\r\n"
                 + "true\r\n"
                 + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="content"; filename=testUpload.jpg\r\n'
-                + 'Content-Type: image/jpeg\r\n'
+                + 'Content-Disposition: form-data; name="content"; filename=".png"\r\n'
+                // + 'Content-Type: image/png\r\n'
+                + 'Content-Type: application/octet-stream\r\n'
                 + 'Content-Transfer-Encoding: binary\r\n'
                 + "\r\n"
                 + content + "\r\n"
@@ -651,6 +652,7 @@ export namespace cmis {
 
             cfg.body = body;
 
+            console.log("CONTENT is: " + content);
 
             let tmp = `${url}?${usp.toString()}`;
             console.log("Temp: " + tmp);
