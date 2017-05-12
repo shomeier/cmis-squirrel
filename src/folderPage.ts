@@ -4,7 +4,7 @@ import PropertisPage from './propertiesPage';
 const roundTo = require('round-to');
 // const base64 = require('base64-js');
 declare var cordova: any;
-// declare var global: any;
+declare var global: any;
 // declare var FileUploadOptions: any;
 // declare module NodeJS  {
 //     interface Global {
@@ -13,47 +13,73 @@ declare var cordova: any;
 //     }
 // }
 
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 function atob(input) {
     var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
     if (str.length % 4 == 1) {
-      throw new console.error("'atob' failed: The string to be decoded is not correctly encoded.");
+        throw new console.error("'atob' failed: The string to be decoded is not correctly encoded.");
     }
     for (
-      // initialize result and counters
-      var bc = 0, bs, buffer, idx = 0, output = '';
-      // get next character
-      buffer = str.charAt(idx++);
-      // character found in table? initialize bit storage and add its ascii value;
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        // and if not first of each 4 characters,
-        // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+        // initialize result and counters
+        var bc = 0, bs, buffer, idx = 0, output = '';
+        // get next character
+        buffer = str.charAt(idx++);
+        // character found in table? initialize bit storage and add its ascii value;
+        ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+            // and if not first of each 4 characters,
+            // convert the first 8 bits to one ascii character
+            bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
     ) {
-      // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
+        // try to find character in table (0-63, not found => -1)
+        buffer = chars.indexOf(buffer);
+    }
+    // return input;
+    return output;
+};
+
+function btoa(input) {
+    var str = String(input);
+    for (
+        // initialize result and counter
+        var block, charCode, idx = 0, map = chars, output = '';
+        // if the next str index does not exist:
+        // change the mapping table to "="
+        // check if d has no fractional digits
+        str.charAt(idx | 0) || (map = '=', idx % 1);
+        // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+        output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+    ) {
+        charCode = str.charCodeAt(idx += 3 / 4);
+        if (charCode > 0xFF) {
+            console.error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+        }
+        block = block << 8 | charCode;
     }
     return output;
-  };
+};
 
 var BASE64_MARKER = ';base64,';
 
 function convertDataURIToBinary(dataURI) {
-  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-  var base64 = dataURI.substring(base64Index);
-  var raw = atob(base64);
-  console.log("RAW: " + raw);
-//   return _utf8_decode(raw);
-  var rawLength = raw.length;
-  var array = new Uint8Array(new ArrayBuffer(rawLength));
+    var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+    var base64 = dataURI.substring(base64Index);
+    var raw = atob(base64);
+    console.log("RAW: " + raw);
+    //   return _utf8_decode(raw);
+    var rawLength = raw.length;
+    var array = new Uint8Array(new ArrayBuffer(rawLength));
 
-  for(let i = 0; i < rawLength; i++) {
-    array[i] = raw.charCodeAt(i);
-  }
-  console.log("Array: " + array);
-//   return array;
-  return raw;
+    for (let i = 0; i < rawLength; i++) {
+        array[i] = raw.charCodeAt(i);
+    }
+    console.log("Array: " + array);
+    //   return array;
+    return raw;
 }
 
 // function b64toBlob(b64Data, contentType, sliceSize?) {
@@ -78,7 +104,7 @@ function convertDataURIToBinary(dataURI) {
 
 //     let tmpS:string = byteArrays.push(byteArray).toString;
 // //   }
-    
+
 //     var array = new Uint8Array(new ArrayBuffer(byteArrays.length))
 //       for(let i = 0; i < byteArrays.length; i++) {
 //     array[i] = string.charCodeAt(i);
@@ -88,6 +114,50 @@ function convertDataURIToBinary(dataURI) {
 // //   var blob = new Blob(byteArrays, {type: contentType});
 // //   return blob;
 // }
+
+function arrayBufferToString(buffer) {
+    var byteArray = new Uint8Array(buffer);
+    var str = "", cc = 0, numBytes = 0;
+    for (var i = 0, len = byteArray.length; i < len; ++i) {
+        var v = byteArray[i];
+        if (numBytes > 0) {
+            //2 bit determining that this is a tailing byte + 6 bit of payload
+            if ((cc & 192) === 192) {
+                //processing tailing-bytes
+                cc = (cc << 6) | (v & 63);
+            } else {
+                throw new Error("this is no tailing-byte");
+            }
+        } else if (v < 128) {
+            //single-byte
+            numBytes = 1;
+            cc = v;
+        } else if (v < 192) {
+            //these are tailing-bytes
+            throw new Error("invalid byte, this is a tailing-byte")
+        } else if (v < 224) {
+            //3 bits of header + 5bits of payload
+            numBytes = 2;
+            cc = v & 31;
+        } else if (v < 240) {
+            //4 bits of header + 4bit of payload
+            numBytes = 3;
+            cc = v & 15;
+        } else {
+            //UTF-8 theoretically supports up to 8 bytes containing up to 42bit of payload
+            //but JS can only handle 16bit.
+            throw new Error("invalid encoding, value out of range")
+        }
+
+        if (--numBytes === 0) {
+            str += String.fromCharCode(cc);
+        }
+    }
+    if (numBytes) {
+        throw new Error("the bytes don't sum up");
+    }
+    return str;
+}
 
 let _keyStr: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
@@ -207,11 +277,11 @@ export default class FolderPage extends Page {
             this.collectionView = this.createContentCollectionView(tmpData);
             this.collectionView.appendTo(this);
 
-            // if (device.platform === "iOS") {
-            //     var base64 = require('base64');
-            //     global.btoa = base64.btoa;
-            //     global.atob = base64.atob;
-            // }
+            if (device.platform === "iOS") {
+                // var base64 = require('base64');
+                // global.btoa = base64.btoa;
+                global.atob = atob;
+            }
 
             this.button = new Button({
                 // top: ['#contentCollectionView', 10], centerX: 0, width: ,
@@ -221,109 +291,122 @@ export default class FolderPage extends Page {
                 text: 'Upload'
             }).on('select', () => {
                 console.log('Upload button pressed ...');
+
+                let activityIndicator = this.activityIndicator;
+                let contentColView = this.collectionView;
+
+                activityIndicator.visible = true;
+                contentColView.enabled = false;
+
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY
+                    'sourceType': Camera.PictureSourceType.CAMERA,
+                    'quality': 10
                 };
 
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
 
-                    // let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
-                    // let fileTransfer = new FileTransfer();
-                    // // let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
-                    // let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(imageData);
-                    // console.log('TARGET: ' + target);
-                    // let fileUploadOptions:FileUploadOptions = {};
-                    // fileUploadOptions.headers = {
-                    //     "Authorization": CmisSession.getSession().getAuthHeader()
-                    // };
-                    // fileUploadOptions.fileKey = "file";
-                    // fileUploadOptions.fileName = imageData;
-                    // fileUploadOptions.params = {
-                    //     'propertyId[0]': 'cmis:objectTypeId',
-                    //     'propertyValue[0]': 'cmis:document',
-                    //     'propertyId[1]': 'cmis:name',
-                    //     'propertyValue[1]': 'testUpload1.jpg',
-                    //     'succinct': 'true',
-                    // };
-                    // fileUploadOptions.mimeType = "image/jpeg";
-                    // fileUploadOptions.chunkedMode = true;
-                    // fileUploadOptions.httpMethod = "POST";
-                    // fileTransfer.upload(
-                    //     imageData,
-                    //     url,
-                    //     ((response) => {
-                    //         console.log("Upload complete: " + JSON.stringify(response));
-                    //         // activityIndicator.visible = false;
-                    //         // contentColView.enabled = true;
-                    //         // cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
-                    //         //     console.log("CALLBACK CALLLED !!!!!");
-                    //         //     console.log("data fileOpener CB: " + JSON.stringify(data));
-                    //         // });
-                    //     }),
-                    //     ((error) => {
-                    //         console.log("Upload error: " + JSON.stringify(error));
-                    //         // activityIndicator.visible = false;
-                    //         // contentColView.enabled = true;
-                    //         // console.log("download error complete: " + JSON.stringify(error));
-                    //         // console.log("download error source: " + JSON.stringify(error.source));
-                    //         // console.log("download error target: " + JSON.stringify(error.target));
-                    //         // console.log("download error code: " + JSON.stringify(error.code));
-                    //     }),
-                    //     fileUploadOptions,
-                    //     false
-                    // );
+                    let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
+                    let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
+                    let fileTransfer = new FileTransfer();
+                    let fileUploadOptions: FileUploadOptions = {};
+                    fileUploadOptions.headers = {
+                        "Authorization": CmisSession.getSession().getAuthHeader()
+                    };
+                    fileUploadOptions.fileKey = "file";
+                    fileUploadOptions.fileName = fileName;
+                    fileUploadOptions.chunkedMode = true;
+                    fileUploadOptions.params = {
+                        'propertyId[0]': 'cmis:objectTypeId',
+                        'propertyValue[0]': 'cmis:document',
+                        'propertyId[1]': 'cmis:name',
+                        'propertyValue[1]': fileName,
+                        'succinct': 'true',
+                    };
+                    fileUploadOptions.mimeType = "image/jpeg";
+                    fileUploadOptions.chunkedMode = true;
+                    fileUploadOptions.httpMethod = "POST";
+                    fileTransfer.upload(
+                        imageData,
+                        url,
+                        ((response) => {
+                            console.log("Upload complete: " + JSON.stringify(response));
+                            activityIndicator.visible = false;
+                            contentColView.enabled = true;
+                            // activityIndicator.visible = false;
+                            // contentColView.enabled = true;
+                            // cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
+                            //     console.log("CALLBACK CALLLED !!!!!");
+                            //     console.log("data fileOpener CB: " + JSON.stringify(data));
+                            // });
+                        }),
+                        ((error) => {
+                            console.log("Upload error: " + JSON.stringify(error));
+                            activityIndicator.visible = false;
+                            contentColView.enabled = true;
+                            // activityIndicator.visible = false;
+                            // contentColView.enabled = true;
+                            // console.log("download error complete: " + JSON.stringify(error));
+                            // console.log("download error source: " + JSON.stringify(error.source));
+                            // console.log("download error target: " + JSON.stringify(error.target));
+                            // console.log("download error code: " + JSON.stringify(ersror.code));
+                        }),
+                        fileUploadOptions,
+                        true
+                    );
 
-                    window.resolveLocalFileSystemURL(imageData, (fileEntry: FileEntry) => {
-                        console.log("Got file ...");
-                        // console.log("fileEntry: " + JSON.stringify(fileEntry));
-                        fileEntry.file((file) => {
-                            // console.log("file: " + JSON.stringify(file));
-                            let reader = new FileReader();
-                            reader.onloadend = function (e) {
-                                // console.log("Text is: " + JSON.stringify(this.result));
-                                let content = this.result;
-                                // console.log("CONTENT: " + decode(content));
-                                // let content = this.result.match(/,(.*)$/)[1];
-                                // console.log("Target atob: " + decode(content));
-                                var url = "data:image/png;base64,TXlUZXN0";
-                                // console.log("CONTENT: " + content);
-                                let contentType = 'image/jpeg';
-                                var b64Data = content;
+                    // window.resolveLocalFileSystemURL(imageData, (fileEntry: FileEntry) => {
+                    //     console.log("Got file ...");
+                    //     // console.log("fileEntry: " + JSON.stringify(fileEntry));
+                    //     fileEntry.file((file) => {
+                    //         // console.log("file: " + JSON.stringify(file));
+                    //         let reader = new FileReader();
+                    //         reader.onloadend = function (e) {
+                    //             // console.log("Text is: " + JSON.stringify(this.result));
+                    //             let content = this.result;
+                    //             // console.log("CONTENT: " + decode(content));
+                    //             // let content = this.result.match(/,(.*)$/)[1];
+                    //             // console.log("Target atob: " + decode(content));
+                    //             var url = "data:image/png;base64,TXlUZXN0";
+                    //             // console.log("CONTENT: " + content);
+                    //             let contentType = 'image/jpeg';
+                    //             var b64Data = content;
 
-                                // let test = content.match(/,(.*)$/)[1];
-                                // console.log("TEST: " + decode(test));
-                                // let test = convertDataURIToBinary(content);
-                                let test = decode(content);
-                                console.log("DECODED: " + decode);
-                                // console.log("TEST: " + test)
-                                
-                                // console.log("test decode: " + decode(test));
+                    //             // let test = content.match(/,(.*)$/)[1];
+                    //             // console.log("TEST: " + decode(test));
+                    //             // let test = convertDataURIToBinary(content);
+                    //             // let test = arrayBufferToString(content);
+                    //             // let test =  JSON.stringify((new Int8Array(content)), null, '  ');
+                    //             let test =  ab2str(content);
+                    //             console.log("DECODED: " + test);
+                    //             // console.log("TEST: " + test)
 
-                                // var blob = convertDataURIToBinary(url);
-                                // console.log("BLOB: " + blob);
-                                // for (let i = 0; i < blob.length; i++)
-                                // {
-                                //     console.log(i + ": " + blob[i]);
-                                // }
-                                // fetch(content).then((res) => res.blob())
-                                //     .then(blob => console.log(blob));
-                                // console.log("Target atob: " + base64.toByteArray(content));
-                                CmisSession.getSession().createDocument(folderId, test, 'test_upload').then((response) => {
-                                    console.log('Created Document...');
-                                    console.log('Response: ' + JSON.stringify(response));
-                                });
+                    //             // console.log("test decode: " + decode(test));
 
-                            }
+                    //             // var blob = convertDataURIToBinary(url);
+                    //             // console.log("BLOB: " + blob);
+                    //             // for (let i = 0; i < blob.length; i++)
+                    //             // {
+                    //             //     console.log(i + ": " + blob[i]);
+                    //             // }
+                    //             // fetch(content).then((res) => res.blob())
+                    //             //     .then(blob => console.log(blob));
+                    //             // console.log("Target atob: " + base64.toByteArray(content));
+                    //             CmisSession.getSession().createDocument(folderId, test, 'test_upload').then((response) => {
+                    //                 console.log('Created Document...');
+                    //                 console.log('Response: ' + JSON.stringify(response));
+                    //             });
 
-                            reader.readAsDataURL(file);
-                        });
-                    }, (e) => {
-                        console.log("Failed reading file ...");
-                        console.log("e: " + JSON.stringify(e));
-                    });
+                    //         }
+
+                    //         reader.readAsArrayBuffer(file);
+                    //     });
+                    // }, (e) => {
+                    //     console.log("Failed reading file ...");
+                    //     console.log("e: " + JSON.stringify(e));
+                    // });
 
                     // CmisSession.getSession().createDocument(folderId, imageData, 'test_upload').then((response) => {
                     //     console.log('Created Document...');
@@ -447,10 +530,8 @@ export default class FolderPage extends Page {
         activityIndicator.visible = true;
         contentColView.enabled = false;
 
-        // let url = 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser/root?objectId=' + fileId + '&cmisselector=content';
         let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
-        // let target = 'cdvfile://localhost/temporary/cmis/cmisTempDownload.' + fileName.substring(fileName.length - 3, fileName.length);
         let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
         console.log('TARGET: ' + target);
         fileTransfer.download(

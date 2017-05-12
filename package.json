@@ -8,15 +8,15 @@
     "build": "tsc -p .",
     "start": "tabris serve"
   },
-  "dependencies": {
-    "tabris": "^2.0.0-beta2",
+  "dependencies": { 
+    "tabris": "2.0.0-beta2",
     "tabris-js-node": "^0.1.0",
     "cordova": "^7.0.0",
     "cordova-js": "^4.2.1",
     "cordova-plugin-camera": "^2.4.1",
+    "cordova-plugin-file": "^4.3.3",
     "cordova-plugin-file-transfer": "^1.6.3",
     "cordova-plugin-file-opener2": "^2.0.15",
-    "base64-js": "^1.2.0",
     "round-to": "^2.0.0"
   },
   "devDependencies": {
