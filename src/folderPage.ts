@@ -7,6 +7,7 @@ declare var navigator: any;
 declare var FileTransfer: any;
 declare var FileUploadOptions: any;
 declare var cordova: any;
+declare var Camera: any;
 declare var global: any;
 // declare var FileUploadOptions: any;
 // declare module NodeJS  {
