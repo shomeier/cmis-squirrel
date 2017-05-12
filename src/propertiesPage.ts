@@ -32,13 +32,13 @@ export default class PropertiesPage extends Page {
             { key: 'cmisName', 'value': cmisObject.cmisName },
             { key: 'cmisBaseTypeId', 'value': cmisObject.cmisBaseTypeId }]
 
-             this.collectionView = this.createPropertiesCollectionView(sampleData);
+            this.collectionView = this.createPropertiesCollectionView(sampleData);
             this.collectionView.appendTo(this);
 
             this.activityIndicator.visible = false;
         });
 
-        
+
     }
 
     private createPropertiesCollectionView(data: any[]) {
@@ -46,12 +46,13 @@ export default class PropertiesPage extends Page {
             left: 0, top: 0, right: 0, bottom: 0,
             id: 'propertiesCollectionView',
             // items: data,
+            // updateCell: this.updateCell,
             createCell: this.initializeCell,
             // itemHeight: device.platform === 'iOS' ? 60 : 68
         });
     }
 
-    private initializeCell(cellType:string):Widget {
+    private initializeCell(cellType: string): Widget {
         let cmp = new Composite({
             left: 10, right: 10, bottom: 0, height: 1,
             background: '#bbb'
@@ -73,5 +74,4 @@ export default class PropertiesPage extends Page {
 
         return cmp;
     }
-
 }

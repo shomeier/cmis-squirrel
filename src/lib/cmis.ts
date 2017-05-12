@@ -524,7 +524,7 @@ export namespace cmis {
     * @return {CmisRequest}
     */
         // TODO: Improve
-        public createDocument(parentId: string, content: any, input: string, options?: any): Promise<Response> {
+        public createDocument(parentId: string, content: any, input: string, options?: any): void {
             //   var options = _fill(options);
             if (!options) {
                 options = {};
@@ -564,7 +564,7 @@ export namespace cmis {
 
         };
 
-        private sendData(url, options, content, filename): Promise<Response> {
+        private sendData(url, options, content, filename): void {
 
             let usp = "";
             for (let k in options) {
@@ -642,8 +642,8 @@ export namespace cmis {
                 + "true\r\n"
                 + '--' + boundary + "\r\n"
                 + 'Content-Disposition: form-data; name="content"; filename=".png"\r\n'
-                // + 'Content-Type: image/png\r\n'
-                + 'Content-Type: application/octet-stream\r\n'
+                + 'Content-Type: image/png\r\n'
+                // + 'Content-Type: application/octet-stream\r\n'
                 + 'Content-Transfer-Encoding: binary\r\n'
                 + "\r\n"
                 + content + "\r\n"
@@ -655,24 +655,38 @@ export namespace cmis {
             console.log("CONTENT is: " + content);
 
             let tmp = `${url}?${usp.toString()}`;
-            console.log("Temp: " + tmp);
-            let response = fetch(tmp, cfg).then((res) => {
-                console.log("WE ARE HERE ....");
-                if (res.status < 200 || res.status > 299) {
-                    console.log("Errorrrrooooorrrr....")
-                    throw new HTTPError(res);
+
+            var http = new XMLHttpRequest();
+            http.open("POST", tmp, true);
+            http.setRequestHeader('Authorization', auth);
+            http.setRequestHeader("Content-type", "multipart/form-data; charset=utf-8; boundary=" + boundary);
+
+            // Call a function when the state 
+            http.onreadystatechange = function () {
+                if (http.readyState == 4 && http.status == 200) {
+                    console.error("Error in xmlhtp: " + http.responseText);
                 }
-                return res;
-            }).catch((err) => {
-                console.log("In err ...");
-                console.log("err: " + JSON.stringify(err));
-            });
-
-            if (this.errorHandler) {
-                response.catch(this.errorHandler);
             }
+            http.send(body);
 
-            return response;
+            // console.log("Temp: " + tmp);
+            // let response = fetch(tmp, cfg).then((res) => {
+            //     console.log("WE ARE HERE ....");
+            //     if (res.status < 200 || res.status > 299) {
+            //         console.log("Errorrrrooooorrrr....")
+            //         throw new HTTPError(res);
+            //     }
+            //     return res;
+            // }).catch((err) => {
+            //     console.log("In err ...");
+            //     console.log("err: " + JSON.stringify(err));
+            // });
+
+            // if (this.errorHandler) {
+            //     response.catch(this.errorHandler);
+            // }
+
+            // return response;
 
             // var formData = new FormData();
             // formData.append('blob', new Blob(['Hello World!\n']), 'test')

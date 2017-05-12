@@ -12,7 +12,7 @@ export default class RepositoriesPage extends Page {
 
     private navigationView: NavigationView;
 
-    private exampleData = [
+    private static _exampleData = [
         {
             name: "Alfresco CMIS Demo Server",
             url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
@@ -25,7 +25,7 @@ export default class RepositoriesPage extends Page {
             user: 'test',
             password: 'test'
         }
-        ];
+    ];
 
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
@@ -54,10 +54,14 @@ export default class RepositoriesPage extends Page {
         return new CollectionView({
             left: 10, top: ['#logo', 50], right: 0, bottom: 80,
             id: 'repositoriesCollection',
+             itemCount:  RepositoriesPage._exampleData.length,
+            cellHeight: device.platform === 'iOS' ? 40 : 48,
             // items: this.getRepositoriesData(),
-            createCell: this.initializeCell
+            updateCell: this.updateCell,
+            createCell: this.createCell
             // itemHeight: device.platform === 'iOS' ? 40 : 48
-        }).on('select', ({ item }) => {
+        }).on('select', ({ index }) => {
+            let item = RepositoriesPage._exampleData[index];
             console.log('selected XXX: ' + JSON.stringify(item));
             CmisSession.init(item.url, item.user, item.password, () => {
                 let session = CmisSession.getSession();
@@ -73,12 +77,17 @@ export default class RepositoriesPage extends Page {
         });
     }
 
-    private initializeCell(cellType:string):Widget {
-        let cmp = new Composite({
+    private createCell(cellType: string): Widget {
+        let widget = new Composite({
+            left: 20, right: 20,
+            // background: '#bbb'
+            background: '#f3f4e4'
+        });
+        let line = new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
             background: '#d2cab5'
-        });
+        }).appendTo(widget);
         // var imageView = new ImageView({
         //     left: 10, top: 10, bottom: 10
         // }).appendTo(cell);
@@ -87,26 +96,34 @@ export default class RepositoriesPage extends Page {
             font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
             // textColor: device.platform === 'iOS' ? 'rgb(22, 126, 251)' : '#212121'
             textColor: '#3b283e'
-        }).appendTo(cmp);
+        }).appendTo(widget);
         var settingsView = new ImageView({
             right: 10, top: 10, bottom: 10,
             // image: 'icons/settings_dark.png'
             image: 'icons/acorn.png'
-        }).appendTo(cmp);
-        cmp.on('change:item', function ({ value: repo }) {
-                // imageView.set('image', 'icons/repository.png');
-                // imageView.set('image', 'icons/acorn.png');
-                textView.set('text', repo.name);
-        });
-        cmp.on('select', function ({ value: repo }) {
+        }).appendTo(widget);
+        // cmp.on('change:item', function ({ value: repo }) {
+        //     // imageView.set('image', 'icons/repository.png');
+        //     // imageView.set('image', 'icons/acorn.png');
+        //     textView.set('text', repo.name);
+        // });
+        widget.on('select', function ({ index }) {
             // imageView.set('image', 'icons/repository.png');
             // imageView.set('image', 'icons/acorn.png');
-            textView.set('text', repo.name);
+            textView.set('text', RepositoriesPage._exampleData[index].name);
         });
-        return cmp;
+        return widget;
+    }
+
+    private updateCell(cell, index) {
+        console.log("In updateCell at index: " + index);
+        let data = RepositoriesPage._exampleData[index];
+        cell.apply({
+            TextView: { text: data.name }
+        });
     }
 
     private getRepositoriesData() {
-        return this.exampleData;
+        return  RepositoriesPage._exampleData;
     }
 }

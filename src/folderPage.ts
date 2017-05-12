@@ -9,6 +9,8 @@ declare var FileUploadOptions: any;
 declare var cordova: any;
 declare var Camera: any;
 declare var global: any;
+declare var FileReader: any;
+declare var window: any;
 // declare var FileUploadOptions: any;
 // declare module NodeJS  {
 //     interface Global {
@@ -247,6 +249,8 @@ export default class FolderPage extends Page {
 
     private activityIndicator: ActivityIndicator;
 
+    private data: any;
+
     constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.folderId = folderId;
@@ -278,7 +282,8 @@ export default class FolderPage extends Page {
                 // console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
                 // console.log("contentStreamLength: " + tmpData[i].cmisContentStreamFileSize);
             }
-            this.collectionView = this.createContentCollectionView(tmpData);
+            this.data = tmpData;
+            this.collectionView = this.createContentCollectionView(this.data);
             this.collectionView.appendTo(this);
 
             if (device.platform === "iOS") {
@@ -304,7 +309,7 @@ export default class FolderPage extends Page {
 
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.CAMERA,
+                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
                     'quality': 10
                 };
 
@@ -313,9 +318,10 @@ export default class FolderPage extends Page {
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
 
                     let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
+                    
                     let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
                     let fileTransfer = new FileTransfer();
-                    let fileUploadOptions:any = {};
+                    let fileUploadOptions: any = {};
                     fileUploadOptions.headers = {
                         "Authorization": CmisSession.getSession().getAuthHeader()
                     };
@@ -361,7 +367,7 @@ export default class FolderPage extends Page {
                         true
                     );
 
-                    // window.resolveLocalFileSystemURL(imageData, (fileEntry: FileEntry) => {
+                    // window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
                     //     console.log("Got file ...");
                     //     // console.log("fileEntry: " + JSON.stringify(fileEntry));
                     //     fileEntry.file((file) => {
@@ -369,7 +375,7 @@ export default class FolderPage extends Page {
                     //         let reader = new FileReader();
                     //         reader.onloadend = function (e) {
                     //             // console.log("Text is: " + JSON.stringify(this.result));
-                    //             let content = this.result;
+                    //             let content = reader.result;
                     //             // console.log("CONTENT: " + decode(content));
                     //             // let content = this.result.match(/,(.*)$/)[1];
                     //             // console.log("Target atob: " + decode(content));
@@ -383,7 +389,8 @@ export default class FolderPage extends Page {
                     //             // let test = convertDataURIToBinary(content);
                     //             // let test = arrayBufferToString(content);
                     //             // let test =  JSON.stringify((new Int8Array(content)), null, '  ');
-                    //             let test =  ab2str(content);
+                    //             // let test =  ab2str(content);
+                    //             let test =  convertDataURIToBinary(content);
                     //             console.log("DECODED: " + test);
                     //             // console.log("TEST: " + test)
 
@@ -398,14 +405,19 @@ export default class FolderPage extends Page {
                     //             // fetch(content).then((res) => res.blob())
                     //             //     .then(blob => console.log(blob));
                     //             // console.log("Target atob: " + base64.toByteArray(content));
-                    //             CmisSession.getSession().createDocument(folderId, test, 'test_upload').then((response) => {
-                    //                 console.log('Created Document...');
-                    //                 console.log('Response: ' + JSON.stringify(response));
-                    //             });
+                    //             CmisSession.getSession().createDocument(folderId, test, 'test_upload');
+                    //             // .then((response) => {
+                    //             //     console.log('Created Document...');
+                    //             //     console.log('Response: ' + JSON.stringify(response));
+                    //             //     activityIndicator.visible = false;
+                    //             //     contentColView.enabled = true;
+                    //             // });
+                    //                 activityIndicator.visible = false;
+                    //                 contentColView.enabled = true;
 
                     //         }
 
-                    //         reader.readAsArrayBuffer(file);
+                    //         reader.readAsDataURL(file);
                     //     });
                     // }, (e) => {
                     //     console.log("Failed reading file ...");
@@ -430,11 +442,48 @@ export default class FolderPage extends Page {
 
     private createContentCollectionView(data: any[]) {
         let navigationView = this.navigationView;
+        let myData = this.data;
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
             // items: data,
-            createCell: this.initializeCell,
+            itemCount: this.data.length,
+            updateCell: (cell, index) => {
+                console.log("In updateCell at index: " + index);
+                let item = myData[index];
+                if (item.cmisBaseTypeId == 'cmis:document') {
+                    cell.apply({
+                        '#icon': { 'image': 'icons/document.png' }
+                    });
+                    if (item.cmisContentStreamLength) {
+                        let size: number = item.cmisContentStreamLength;
+                        if (size < 1024) {
+                            cell.apply({
+                                '#objectSize': { 'text': size + ' Byte' }
+                            });
+                        } else if (size < 1048576) {
+                            cell.apply({
+                                '#objectSize': { 'text': roundTo((size / 1024), 1) + ' KB' }
+                            });
+                        } else if (size < 1073741824) {
+                            cell.apply({
+                                '#objectSize': { 'text': roundTo((size / 1048576), 1) + ' MB' }
+                            });
+                        }
+                    }
+                } else {
+                    cell.apply({
+                        '#icon': { 'image': 'icons/folder.png' },
+                        // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
+                        '#objectSize': { 'text': '  ' }
+                    });
+                }
+                cell.apply({
+                    '#objectName': { 'text': item.cmisName }
+                })
+            },
+            cellHeight: device.platform === 'iOS' ? 60 : 68,
+            createCell: this.createCell,
             // itemHeight: device.platform === 'iOS' ? 60 : 68
         }).on('select', ({ item }) => {
             console.log("In Select EventHandler ...");
@@ -464,29 +513,36 @@ export default class FolderPage extends Page {
         });
     }
 
-    private initializeCell(cellType:string):Widget {
+    private createCell(cellType: string): Widget {
+        let widget = new Composite({
+            left: 20, right: 20,
+            // background: '#bbb'
+            // background: '#3b283e'
+        });
         let cmp = new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
             // background: '#bbb'
             // background: '#3b283e'
             background: '#d2cab5'
-        });
+        }).appendTo(widget);
         let icon = new ImageView({
             left: 10, top: 10, bottom: 10,
+            id: 'icon',
             scaleMode: 'fit'
-        }).appendTo(cmp);
+        }).appendTo(widget);
         let objectName = new TextView({
             left: 60, top: 8,
             id: 'objectName',
             // textColor: '#4a4a4a'
             textColor: '#3b283e'
-        }).appendTo(cmp);
+        }).appendTo(widget);
         let objectSize = new TextView({
             left: 60, top: ["#objectName", 6],
+            id: 'objectSize',
             markupEnabled: true,
             textColor: '#9a9a9a'
-        }).appendTo(cmp);
-        cmp.on('change:item', ({ value: item }) => {
+        }).appendTo(widget);
+        widget.on('change:item', ({ value: item }) => {
             // TODO: Still a bug here: Sometimes file size is added to folder types when scrolling
             // Mybe bug in Tabris.js framework ?!?
             if (item.cmisBaseTypeId == 'cmis:document') {
@@ -508,13 +564,13 @@ export default class FolderPage extends Page {
             }
             objectName.set('text', item.cmisName);
         });
-        cmp.on('select', function ({ value: item }) {
+        widget.on('select', function ({ value: item }) {
             console.log("CELL SELECTED !!!!!!")
             icon.set('image', 'icons/Cloud-50.png');
             objectName.set('text', item.cmisBaseTypeId);
         });
 
-        return cmp;
+        return widget;
         // let navigationView = this.navigationView;
         // cell.on('longpress', function ({target}) {
         //     console.log("LONGPRESS ON CELL !!!!!!");
@@ -525,6 +581,41 @@ export default class FolderPage extends Page {
         //             title: target.item.cmisName
         //         });
         // });
+    }
+
+    private updateCell(cell, index) {
+        console.log("In updateCell at index: " + index);
+        let item = this.data[index];
+        if (item.cmisBaseTypeId == 'cmis:document') {
+            cell.apply({
+                '#icon': { 'image': 'icons/document.png' }
+            });
+            if (item.cmisContentStreamLength) {
+                let size: number = item.cmisContentStreamLength;
+                if (size < 1024) {
+                    cell.apply({
+                        '#objectSize': { 'text': size + ' Byte' }
+                    });
+                } else if (size < 1048576) {
+                    cell.apply({
+                        '#objectSize': { 'text': roundTo((size / 1024), 1) + ' KB' }
+                    });
+                } else if (size < 1073741824) {
+                    cell.apply({
+                        '#objectSize': { 'text': roundTo((size / 1048576), 1) + ' MB' }
+                    });
+                }
+            }
+        } else {
+            cell.apply({
+                '#icon': { 'image': 'icons/folder.png' },
+                // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
+                '#objectSize': { 'text': '  ' }
+            });
+        }
+        cell.apply({
+            '#objectName': { 'text': item.cmisName }
+        });
     }
 
     private openContent(fileId: string, fileName: string): void {
