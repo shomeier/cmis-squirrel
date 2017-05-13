@@ -1,6 +1,7 @@
 import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, Widget, device } from 'tabris';
-import CmisSession from './cmisSession'
+import { CmisSession, CmisRepository} from './cmisSession'
 import FolderPage from './folderPage';
+import RepositorySettingsPage from './repositorySettingsPage';
 
 export default class RepositoriesPage extends Page {
 
@@ -38,6 +39,13 @@ export default class RepositoriesPage extends Page {
             background: '#3b283e',
             textColor: '#f3f4e4',
             text: 'Add New Repository'
+        }).on('select', () => {
+            console.log('Adding repository ...');
+            let settingsPage = new RepositorySettingsPage(this.navigationView, {
+                title: 'Add New Repository',
+                background: '#f3f4e4',
+                id: 'settingsPage'
+            }).appendTo(this.navigationView);
         }).appendTo(this);
     }
 
@@ -53,14 +61,14 @@ export default class RepositoriesPage extends Page {
         return new CollectionView({
             left: 10, top: ['#logo', 50], right: 0, bottom: 80,
             id: 'repositoriesCollection',
-             itemCount:  RepositoriesPage._exampleData.length,
+            itemCount: RepositoriesPage._exampleData.length,
             cellHeight: device.platform === 'iOS' ? 40 : 48,
             updateCell: this.updateCell,
             createCell: this.createCell
         }).on('select', ({ index }) => {
             let item = RepositoriesPage._exampleData[index];
             console.log('selected XXX: ' + JSON.stringify(item));
-            CmisSession.init(item.url, item.user, item.password, () => {
+            CmisSession.init(item.url, item.user, item.password).then(() => {
                 let session = CmisSession.getSession();
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
@@ -68,8 +76,7 @@ export default class RepositoriesPage extends Page {
                     {
                         title: '/'
                     });
-            }),
-                (err) => console.log(err)
+            }).catch((err) => {console.log(err)})
         });
     }
 
@@ -106,6 +113,6 @@ export default class RepositoriesPage extends Page {
     }
 
     private getRepositoriesData() {
-        return  RepositoriesPage._exampleData;
+        return RepositoriesPage._exampleData;
     }
 }

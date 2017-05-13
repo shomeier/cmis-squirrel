@@ -1,5 +1,5 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
-import CmisSession from './cmisSession'
+import { CmisSession, CmisRepository } from './cmisSession'
 // import PropertiesPage from './propertiesPage';
 const roundTo = require('round-to');
 declare var navigator: any;
@@ -206,8 +206,9 @@ export default class FolderPage extends Page {
             cellHeight: device.platform === 'iOS' ? 60 : 68,
             createCell: this.createCell,
             // itemHeight: device.platform === 'iOS' ? 60 : 68
-        }).on('select', ({ item }) => {
-            console.log("In Select EventHandler ...");
+        }).on('select', ( {index} ) => {
+            let item = myData[index];
+            console.log("In Select EventHandler ... index: " + index);
             console.log("Item selected: " + JSON.stringify(item));
             console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
             console.log("Creating sub content page ...");

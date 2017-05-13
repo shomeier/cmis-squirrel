@@ -1,25 +1,32 @@
 import { cmis } from './lib/cmis';
 
-export default class CmisSession {
+export class CmisSession {
 
     private static _initialized: boolean = false;
 
     private static _session: cmis.CmisSession = null;
 
-    public static init(url: string, user: string, password: string, cb, err?): void {
+    public static addRepository(repo:CmisRepository): Promise<void> {
+
+        console.log('Adding repo: ' + JSON.stringify(repo));
+        // TODO: return Promise here ...
+        return;
+    } 
+
+    public static init(url: string, user: string, password: string): Promise<void> {
 
         // if (CmisSession._initialized == false) {
 
         CmisSession._session = new cmis.CmisSession(url);
 
-        if (err) {
-            CmisSession._session.setErrorHandler(err);
-        }
+        // if (err) {
+        //     CmisSession._session.setErrorHandler(err);
+        // }
 
-        CmisSession._session.setCredentials(user, password).loadRepositories().then(() => {
+        return CmisSession._session.setCredentials(user, password).loadRepositories().then(() => {
             console.log('CMIS Session initialized');
             CmisSession._initialized = true;
-            cb();
+            // cb();
         });
         // } else {
 
@@ -35,4 +42,12 @@ export default class CmisSession {
             return CmisSession._session;
         }
     }
+}
+
+export interface CmisRepository {
+    name: string;
+    url: string;
+    user: string;
+    password: string;
+
 }
