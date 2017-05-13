@@ -604,12 +604,64 @@ export namespace cmis {
                 cfg.headers = {
                     'Authorization': auth,
                     // 'Transfer-Encoding': 'chunked',
-                    'Content-Type': "multipart/form-data; charset=utf-8; boundary=" + boundary
+                    'Content-Type': "multipart/form-data; boundary=" + boundary
                     // 'Content-Type': 'application/x-www-form-urlencoded; boundary=' + boundary
                 };
             } else {
                 cfg.credentials = 'include';
             }
+
+            let image = new Uint8Array(content); // Wrap in view to get data
+
+            // let rn = "\n\n";
+            let n = '\r\n';
+            var before = ['Content-Disposition: form-data; name="cmisaction"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'createDocument',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="propertyId[0]"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'cmis:objectTypeId',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="propertyValue[0]"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'cmis:document',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="propertyId[1]"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'cmis:name',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="propertyValue[1]"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'sample5.png',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="succinct"',n,
+                'Content-Type: text/plain; charset=utf-8',n,
+                n, 'true',n,
+                '--', boundary, n,
+                'Content-Disposition: form-data; name="content"; filename=".png"',n,
+                'Content-Type: image/png',n,
+                'Content-Transfer-Encoding: binary',n,n].join('');
+            var after = n + '--' + boundary + '--';
+            var size = before.length + image.byteLength + after.length;
+            var uint8array = new Uint8Array(size);
+            var i = 0;
+
+            // Append the string.
+            for (; i < before.length; i++) {
+                uint8array[i] = before.charCodeAt(i) & 0xff;
+            }
+
+            // Append the binary data.
+            for (var j = 0; j < image.byteLength; i++ , j++) {
+                uint8array[i] = image[j];
+            }
+
+            // Append the remaining string
+            for (var j = 0; j < after.length; i++ , j++) {
+                uint8array[i] = after.charCodeAt(j) & 0xff;
+            }
+
             let body: string = '--' + boundary + "\r\n"
                 + 'Content-Disposition: form-data; name="cmisaction"\r\n'
                 + 'Content-Type: text/plain; charset=utf-8\r\n'
@@ -652,7 +704,7 @@ export namespace cmis {
 
             cfg.body = body;
 
-            console.log("CONTENT is: " + content);
+            console.log("CONTENT is: " + uint8array.buffer);
 
             let tmp = `${url}?${usp.toString()}`;
 
@@ -667,7 +719,7 @@ export namespace cmis {
                     console.error("Error in xmlhtp: " + http.responseText);
                 }
             }
-            http.send(body);
+            http.send(uint8array);
 
             // console.log("Temp: " + tmp);
             // let response = fetch(tmp, cfg).then((res) => {

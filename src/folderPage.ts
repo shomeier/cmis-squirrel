@@ -318,111 +318,117 @@ export default class FolderPage extends Page {
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
 
                     let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
-                    
-                    let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
-                    let fileTransfer = new FileTransfer();
-                    let fileUploadOptions: any = {};
-                    fileUploadOptions.headers = {
-                        "Authorization": CmisSession.getSession().getAuthHeader()
-                    };
-                    fileUploadOptions.fileKey = "file";
-                    fileUploadOptions.fileName = fileName;
-                    fileUploadOptions.chunkedMode = true;
-                    fileUploadOptions.params = {
-                        'propertyId[0]': 'cmis:objectTypeId',
-                        'propertyValue[0]': 'cmis:document',
-                        'propertyId[1]': 'cmis:name',
-                        'propertyValue[1]': fileName,
-                        'succinct': 'true',
-                    };
-                    fileUploadOptions.mimeType = "image/jpeg";
-                    fileUploadOptions.chunkedMode = true;
-                    fileUploadOptions.httpMethod = "POST";
-                    fileTransfer.upload(
-                        imageData,
-                        url,
-                        ((response) => {
-                            console.log("Upload complete: " + JSON.stringify(response));
-                            activityIndicator.visible = false;
-                            contentColView.enabled = true;
-                            // activityIndicator.visible = false;
-                            // contentColView.enabled = true;
-                            // cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
-                            //     console.log("CALLBACK CALLLED !!!!!");
-                            //     console.log("data fileOpener CB: " + JSON.stringify(data));
-                            // });
-                        }),
-                        ((error) => {
-                            console.log("Upload error: " + JSON.stringify(error));
-                            activityIndicator.visible = false;
-                            contentColView.enabled = true;
-                            // activityIndicator.visible = false;
-                            // contentColView.enabled = true;
-                            // console.log("download error complete: " + JSON.stringify(error));
-                            // console.log("download error source: " + JSON.stringify(error.source));
-                            // console.log("download error target: " + JSON.stringify(error.target));
-                            // console.log("download error code: " + JSON.stringify(ersror.code));
-                        }),
-                        fileUploadOptions,
-                        true
-                    );
 
-                    // window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
-                    //     console.log("Got file ...");
-                    //     // console.log("fileEntry: " + JSON.stringify(fileEntry));
-                    //     fileEntry.file((file) => {
-                    //         // console.log("file: " + JSON.stringify(file));
-                    //         let reader = new FileReader();
-                    //         reader.onloadend = function (e) {
-                    //             // console.log("Text is: " + JSON.stringify(this.result));
-                    //             let content = reader.result;
-                    //             // console.log("CONTENT: " + decode(content));
-                    //             // let content = this.result.match(/,(.*)$/)[1];
-                    //             // console.log("Target atob: " + decode(content));
-                    //             var url = "data:image/png;base64,TXlUZXN0";
-                    //             // console.log("CONTENT: " + content);
-                    //             let contentType = 'image/jpeg';
-                    //             var b64Data = content;
-
-                    //             // let test = content.match(/,(.*)$/)[1];
-                    //             // console.log("TEST: " + decode(test));
-                    //             // let test = convertDataURIToBinary(content);
-                    //             // let test = arrayBufferToString(content);
-                    //             // let test =  JSON.stringify((new Int8Array(content)), null, '  ');
-                    //             // let test =  ab2str(content);
-                    //             let test =  convertDataURIToBinary(content);
-                    //             console.log("DECODED: " + test);
-                    //             // console.log("TEST: " + test)
-
-                    //             // console.log("test decode: " + decode(test));
-
-                    //             // var blob = convertDataURIToBinary(url);
-                    //             // console.log("BLOB: " + blob);
-                    //             // for (let i = 0; i < blob.length; i++)
-                    //             // {
-                    //             //     console.log(i + ": " + blob[i]);
-                    //             // }
-                    //             // fetch(content).then((res) => res.blob())
-                    //             //     .then(blob => console.log(blob));
-                    //             // console.log("Target atob: " + base64.toByteArray(content));
-                    //             CmisSession.getSession().createDocument(folderId, test, 'test_upload');
-                    //             // .then((response) => {
-                    //             //     console.log('Created Document...');
-                    //             //     console.log('Response: ' + JSON.stringify(response));
-                    //             //     activityIndicator.visible = false;
-                    //             //     contentColView.enabled = true;
+                    //     let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + folderId + '&cmisaction=createDocument';
+                    //     let fileTransfer = new FileTransfer();
+                    //     let fileUploadOptions: any = {};
+                    //     fileUploadOptions.headers = {
+                    //         "Authorization": CmisSession.getSession().getAuthHeader()
+                    //     };
+                    //     fileUploadOptions.fileKey = "file";
+                    //     fileUploadOptions.fileName = fileName;
+                    //     fileUploadOptions.chunkedMode = true;
+                    //     fileUploadOptions.params = {
+                    //         'propertyId[0]': 'cmis:objectTypeId',
+                    //         'propertyValue[0]': 'cmis:document',
+                    //         'propertyId[1]': 'cmis:name',
+                    //         'propertyValue[1]': fileName,
+                    //         'succinct': 'true',
+                    //     };
+                    //     fileUploadOptions.mimeType = "image/jpeg";
+                    //     fileUploadOptions.chunkedMode = true;
+                    //     fileUploadOptions.httpMethod = "POST";
+                    //     fileTransfer.upload(
+                    //         imageData,
+                    //         url,
+                    //         ((response) => {
+                    //             console.log("Upload complete: " + JSON.stringify(response));
+                    //             activityIndicator.visible = false;
+                    //             contentColView.enabled = true;
+                    //             // activityIndicator.visible = false;
+                    //             // contentColView.enabled = true;
+                    //             // cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
+                    //             //     console.log("CALLBACK CALLLED !!!!!");
+                    //             //     console.log("data fileOpener CB: " + JSON.stringify(data));
                     //             // });
-                    //                 activityIndicator.visible = false;
-                    //                 contentColView.enabled = true;
+                    //         }),
+                    //         ((error) => {
+                    //             console.log("Upload error: " + JSON.stringify(error));
+                    //             activityIndicator.visible = false;
+                    //             contentColView.enabled = true;
+                    //             // activityIndicator.visible = false;
+                    //             // contentColView.enabled = true;
+                    //             // console.log("download error complete: " + JSON.stringify(error));
+                    //             // console.log("download error source: " + JSON.stringify(error.source));
+                    //             // console.log("download error target: " + JSON.stringify(error.target));
+                    //             // console.log("download error code: " + JSON.stringify(ersror.code));
+                    //         }),
+                    //         fileUploadOptions,
+                    //         true
+                    //     );
 
-                    //         }
+                    window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
+                        console.log("Got file ...");
+                        // console.log("fileEntry: " + JSON.stringify(fileEntry));
+                        fileEntry.file((file) => {
+                            // console.log("file: " + JSON.stringify(file));
+                            let reader = new FileReader();
+                            reader.onloadend = function (e) {
+                                // console.log("Text is: " + JSON.stringify(this.result));
+                                let content = reader.result;
+                                // console.log("CONTENT: " + decode(content));
+                                // let content = this.result.match(/,(.*)$/)[1];
+                                // console.log("Target atob: " + decode(content));
+                                var url = "data:image/png;base64,TXlUZXN0";
+                                // console.log("CONTENT: " + content);
+                                let contentType = 'image/jpeg';
+                                var b64Data = content;
 
-                    //         reader.readAsDataURL(file);
-                    //     });
-                    // }, (e) => {
-                    //     console.log("Failed reading file ...");
-                    //     console.log("e: " + JSON.stringify(e));
-                    // });
+                                // let test = content.match(/,(.*)$/)[1];
+                                // console.log("TEST: " + decode(test));
+                                // let test = convertDataURIToBinary(content);
+                                // let test = arrayBufferToString(content);
+                                // let test =  JSON.stringify((new Int8Array(content)), null, '  ');
+                                // let test =  ab2str(content);
+                                // let test = content;
+                                var longInt8View = new Uint8Array(content);
+
+                                // for (var i = 0; i < longInt8View.length; i++) {
+                                //     longInt8View[i] = i % 255;
+                                // }
+                                let test = content;
+                                console.log("DECODED: " + test);
+                                // console.log("TEST: " + test)
+
+                                // console.log("test decode: " + decode(test));
+
+                                // var blob = convertDataURIToBinary(url);
+                                // console.log("BLOB: " + blob);
+                                // for (let i = 0; i < blob.length; i++)
+                                // {
+                                //     console.log(i + ": " + blob[i]);
+                                // }
+                                // fetch(content).then((res) => res.blob())
+                                //     .then(blob => console.log(blob));
+                                // console.log("Target atob: " + base64.toByteArray(content));
+                                CmisSession.getSession().createDocument(folderId, test, 'test_upload');
+                                // .then((response) => {
+                                //     console.log('Created Document...');
+                                //     console.log('Response: ' + JSON.stringify(response));
+                                //     activityIndicator.visible = false;
+                                //     contentColView.enabled = true;
+                                // });
+                                activityIndicator.visible = false;
+                                contentColView.enabled = true;
+
+                            }
+
+                            reader.readAsArrayBuffer(file);
+                        });
+                    }, (e) => {
+                        console.log("Failed reading file ...");
+                        console.log("e: " + JSON.stringify(e));
+                    });
 
                     // CmisSession.getSession().createDocument(folderId, imageData, 'test_upload').then((response) => {
                     //     console.log('Created Document...');
