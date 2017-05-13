@@ -613,6 +613,8 @@ export namespace cmis {
 
             let image = new Uint8Array(content); // Wrap in view to get data
 
+            // We need to put the whole body in an array buffer to get a binary upload working!
+            // See also here: http://stackoverflow.com/questions/8262266/xmlhttprequest-multipart-related-post-with-xml-and-image-as-payload#answer-10073841
             // let rn = "\n\n";
             let n = '\r\n';
             var before = ['Content-Disposition: form-data; name="cmisaction"',n,
