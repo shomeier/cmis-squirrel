@@ -524,19 +524,10 @@ export namespace cmis {
     * @return {CmisRequest}
     */
         // TODO: Improve
-        public createDocument(parentId: string, content: any, input: string, options?: any): void {
-            //   var options = _fill(options);
-            if (!options) {
-                options = {};
-            }
+        public createDocument(parentId: string, content: any, properties: any): void {
+            let urlOptions:any = {};
 
-            let newInput;
-            if ('string' == typeof input) {
-                newInput = {
-                    'cmis:name': input
-                };
-            }
-            var properties = newInput || {};
+            var properties = properties || {};
             if (!properties['cmis:objectTypeId']) {
                 properties['cmis:objectTypeId'] = 'cmis:document';
             }
@@ -544,8 +535,8 @@ export namespace cmis {
             //     options.versioningState = versioningState;
             // }
 
-            options.objectId = parentId;
-            this.setProperties(properties, options);
+            urlOptions.objectId = parentId;
+            this.setProperties(properties, urlOptions);
             //   if (policies) {
             //     this.setPolicies(policies, options);
             //   }
@@ -555,35 +546,28 @@ export namespace cmis {
             //   if (removeACEs) {
             //     this.setACEs(removeACEs, 'remove', options);
             //   }
-            options.repositoryId = this.defaultRepository.repositoryId;
-            options.cmisaction = 'createDocument';
+            urlOptions.repositoryId = this.defaultRepository.repositoryId;
+            urlOptions.cmisaction = 'createDocument';
 
-            // return _postMultipart(this.defaultRepository.rootFolderUrl,
-            return this.sendData(this.defaultRepository.rootFolderUrl,
-                options, content, properties['cmis:name']);
+            return this.postMultipartForm(this.defaultRepository.rootFolderUrl,
+                content, properties, urlOptions);
 
         };
 
-        private sendData(url, options, content, filename): void {
+        private postMultipartForm(url, content, properties: any, urlOptions?: any): void {
 
             let usp = "";
-            for (let k in options) {
-                if (options[k] != null && options[k] !== undefined) {
+            for (let k in urlOptions) {
+                if (urlOptions[k] != null && urlOptions[k] !== undefined) {
                     //   usp.append(k, options[k]);
                     if (k != "constructor") {
                         if (usp.length == 0) {
-                            usp = k + "=" + options[k];
+                            usp = k + "=" + urlOptions[k];
                         } else {
-                            usp += "&" + k + "=" + options[k];
+                            usp += "&" + k + "=" + urlOptions[k];
                         }
                     }
                 }
-            }
-
-            for (let k in this.options) {
-                // if (!usp.has(k) && this.options[k] != null && this.options[k] !== undefined) {
-                //   usp.append(k, this.options[k]);
-                // }
             }
 
             let auth: string;
@@ -595,55 +579,41 @@ export namespace cmis {
                 auth = `Bearer ${this.token}`;
             }
 
-            // let formData = new FormData();
-            // formData.append('content', new Blob(content));
-            // let boundary:string = 'XXX' + Math.random.toString;
-            let boundary: string = 'xXXShorty---afizvBKfYy';
-            let cfg: RequestInit = { method: 'POST' };
-            if (auth) {
-                cfg.headers = {
-                    'Authorization': auth,
-                    // 'Transfer-Encoding': 'chunked',
-                    'Content-Type': "multipart/form-data; boundary=" + boundary
-                    // 'Content-Type': 'application/x-www-form-urlencoded; boundary=' + boundary
-                };
-            } else {
-                cfg.credentials = 'include';
-            }
-
+            let boundary: string = 'cCmMiIsSssSquIrRel---afizvBKfYy';
             let image = new Uint8Array(content); // Wrap in view to get data
 
             // We need to put the whole body in an array buffer to get a binary upload working!
             // See also here: http://stackoverflow.com/questions/8262266/xmlhttprequest-multipart-related-post-with-xml-and-image-as-payload#answer-10073841
             // let rn = "\n\n";
             let n = '\r\n';
-            var before = ['Content-Disposition: form-data; name="cmisaction"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'createDocument',n,
+            var before = ['Content-Disposition: form-data; name="cmisaction"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, 'createDocument', n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="propertyId[0]"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'cmis:objectTypeId',n,
+                'Content-Disposition: form-data; name="propertyId[0]"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, 'cmis:objectTypeId', n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="propertyValue[0]"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'cmis:document',n,
+                'Content-Disposition: form-data; name="propertyValue[0]"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, properties['cmis:objectTypeId'], n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="propertyId[1]"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'cmis:name',n,
+                'Content-Disposition: form-data; name="propertyId[1]"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, 'cmis:name', n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="propertyValue[1]"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'sample5.png',n,
+                'Content-Disposition: form-data; name="propertyValue[1]"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, properties['cmis:name'], n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="succinct"',n,
-                'Content-Type: text/plain; charset=utf-8',n,
-                n, 'true',n,
+                'Content-Disposition: form-data; name="succinct"', n,
+                'Content-Type: text/plain; charset=utf-8', n,
+                n, 'true', n,
                 '--', boundary, n,
-                'Content-Disposition: form-data; name="content"; filename=".png"',n,
-                'Content-Type: image/png',n,
-                'Content-Transfer-Encoding: binary',n,n].join('');
+                'Content-Disposition: form-data; name="content"; filename="' + properties['cmis:name'] + '"', n,
+                'Content-Type: application/octet-stream', n,
+                // 'Content-Type: image/jpeg',n,
+                'Content-Transfer-Encoding: binary', n, n].join('');
             var after = n + '--' + boundary + '--';
             var size = before.length + image.byteLength + after.length;
             var uint8array = new Uint8Array(size);
@@ -664,54 +634,14 @@ export namespace cmis {
                 uint8array[i] = after.charCodeAt(j) & 0xff;
             }
 
-            let body: string = '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="cmisaction"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "createDocument\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="propertyId[0]"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "cmis:objectTypeId\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="propertyValue[0]"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "cmis:document\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="propertyId[1]"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "cmis:name\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="propertyValue[1]"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "sample5.png\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="succinct"\r\n'
-                + 'Content-Type: text/plain; charset=utf-8\r\n'
-                + "\r\n"
-                + "true\r\n"
-                + '--' + boundary + "\r\n"
-                + 'Content-Disposition: form-data; name="content"; filename=".png"\r\n'
-                + 'Content-Type: image/png\r\n'
-                // + 'Content-Type: application/octet-stream\r\n'
-                + 'Content-Transfer-Encoding: binary\r\n'
-                + "\r\n"
-                + content + "\r\n"
-                + '--' + boundary + "--\r\n";
-            // + "Content-Type: application/octet-stream\r\n' + '\r\n' + content + '\r\n' + '--' + boundary + '--';
-
-            cfg.body = body;
 
             console.log("CONTENT is: " + uint8array.buffer);
 
-            let tmp = `${url}?${usp.toString()}`;
+            let newUrl = `${url}?${usp.toString()}`;
+            console.log("URL: " + newUrl);
 
             var http = new XMLHttpRequest();
-            http.open("POST", tmp, true);
+            http.open("POST", newUrl, true);
             http.setRequestHeader('Authorization', auth);
             http.setRequestHeader("Content-type", "multipart/form-data; charset=utf-8; boundary=" + boundary);
 
@@ -722,38 +652,6 @@ export namespace cmis {
                 }
             }
             http.send(uint8array);
-
-            // console.log("Temp: " + tmp);
-            // let response = fetch(tmp, cfg).then((res) => {
-            //     console.log("WE ARE HERE ....");
-            //     if (res.status < 200 || res.status > 299) {
-            //         console.log("Errorrrrooooorrrr....")
-            //         throw new HTTPError(res);
-            //     }
-            //     return res;
-            // }).catch((err) => {
-            //     console.log("In err ...");
-            //     console.log("err: " + JSON.stringify(err));
-            // });
-
-            // if (this.errorHandler) {
-            //     response.catch(this.errorHandler);
-            // }
-
-            // return response;
-
-            // var formData = new FormData();
-            // formData.append('blob', new Blob(['Hello World!\n']), 'test')
-
-            // for (var name in data) {
-            //     formData.append(name, data[name]);
-            // }
-
-            // fetch(url, {
-            //     method: 'POST',
-            //     body: formData
-            // }).then(function (response) {
-            // });
         }
 
         /**

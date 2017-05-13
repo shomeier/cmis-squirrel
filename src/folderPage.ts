@@ -130,7 +130,7 @@ export default class FolderPage extends Page {
                                 var longInt8View = new Uint8Array(content);
                                 let test = content;
                                 console.log("DECODED: " + test);
-                                CmisSession.getSession().createDocument(folderId, test, 'test_upload');
+                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId' : 'cmis:document'} );
                                 // .then((response) => {
                                 //     console.log('Created Document...');
                                 //     console.log('Response: ' + JSON.stringify(response));
