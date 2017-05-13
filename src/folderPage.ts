@@ -1,8 +1,7 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import CmisSession from './cmisSession'
-import PropertisPage from './propertiesPage';
+// import PropertiesPage from './propertiesPage';
 const roundTo = require('round-to');
-// const base64 = require('base64-js');
 declare var navigator: any;
 declare var FileTransfer: any;
 declare var FileUploadOptions: any;
@@ -127,9 +126,6 @@ export default class FolderPage extends Page {
                             let reader = new FileReader();
                             reader.onloadend = function (e) {
                                 let content = reader.result;
-                                var url = "data:image/png;base64,TXlUZXN0";
-                                let contentType = 'image/jpeg';
-                                var b64Data = content;
 
                                 var longInt8View = new Uint8Array(content);
                                 let test = content;
