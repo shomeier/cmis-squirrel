@@ -61,21 +61,21 @@ export default class RepositoriesPage extends Page {
             left: 0, right: 0, top: ["#repoName", 10],
             id: 'repoUrl',
             message: 'URL of the CMIS repository ...',
-            // text: 'http://192.168.1.102:8083/cmisBrowser'
-            text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
+            text: 'http://192.168.1.102:8083/cmisBrowser'
+            // text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
         }).appendTo(widget);
         this.repoUser = new TextInput({
             left: 0, right: 0, top: ["#repoUrl", 10],
             id: 'repoUser',
             message: 'Username ...',
-            text: 'admin'
+            text: 'test'
         }).appendTo(widget);
         this.repoPassword = new TextInput({
             left: 0, right: 0, top: ["#repoUser", 10],
             type: 'password',
             id: 'repoPassword',
             message: 'Password ...',
-            text: 'admin'
+            text: 'test'
         }).appendTo(widget);
         
         // new Picker({

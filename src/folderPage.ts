@@ -69,15 +69,16 @@ export default class FolderPage extends Page {
                 textColor: '#f3f4e4',
                 text: 'Upload'
             }).on('select', () => {
+                let activityUpload = new Activity(this.navigationView);
+                activityUpload.startActivity();
                 console.log('Upload button pressed ...');
 
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
-                    'quality': 10
+                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY
+                    // 'quality': 10
                 };
 
-                let activityUpload = new Activity(this.navigationView);
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
@@ -95,27 +96,38 @@ export default class FolderPage extends Page {
                                 let test = content;
                                 console.log("DECODED: " + test);
 
-                                activityUpload.startActivity();
-                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' });
+                                console.log("Starting Activity ...");
+                                // activityUpload.startActivity();
+                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
+                                    console.log("In Promise...!!!!");
+                                    activityUpload.stopActivity();
+                                }).catch(() => {
+
+                                    console.log("In Catch Promise...!!!!");
+                                    activityUpload.stopActivity();
+                                });
+                                console.log("After create Doc ...");
+
                                 // .then((response) => {
                                 //     console.log('Created Document...');
                                 //     console.log('Response: ' + JSON.stringify(response));
                                 //     activityIndicator.visible = false;
                                 //     contentColView.enabled = true;
                                 // });
-                                activityUpload.stopActivity();
 
                             }
 
                             reader.readAsArrayBuffer(file);
                         });
                     }, (e) => {
+                        activityUpload.stopActivity();
                         console.log("Failed reading file ...");
                         console.log("e: " + JSON.stringify(e));
 
                     });
 
                 }, (err) => {
+                    activityUpload.stopActivity();
                     console.log('Camera error ...');
                     console.log('Camera error: ' + JSON.stringify(err));
                 }, options);

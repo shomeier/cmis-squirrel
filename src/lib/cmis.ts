@@ -502,8 +502,8 @@ export namespace cmis {
     * @return {CmisRequest}
     */
         // TODO: Improve
-        public createDocument(parentId: string, content: any, properties: any): void {
-            let urlOptions:any = {};
+        public createDocument(parentId: string, content: any, properties: any): Promise<any> {
+            let urlOptions: any = {};
 
             var properties = properties || {};
             if (!properties['cmis:objectTypeId']) {
@@ -532,7 +532,7 @@ export namespace cmis {
 
         };
 
-        private postMultipartForm(url, content, properties: any, urlOptions?: any): void {
+        private postMultipartForm(url, content, properties: any, urlOptions?: any): Promise<any> {
 
             let usp = "";
             for (let k in urlOptions) {
@@ -625,11 +625,37 @@ export namespace cmis {
 
             // Call a function when the state 
             http.onreadystatechange = function () {
+                console.log("FINSIHED onreadystate");
                 if (http.readyState == 4 && http.status == 200) {
                     console.error("Error in xmlhtp: " + http.responseText);
                 }
+                if (http.readyState == 200) {
+                    console.log("FINSIHED UPLOAD");
+                }
             }
+            // let promise: Promise<any>;
+            // http.onload = function (e) {
+            let promise = new Promise(
+                    function (resolve, reject) {
+                        http.onload = function (e) {
+                            if (http.readyState === 4 && http.status === 200) {
+                                resolve(http.response); // fulfilled
+                            } else {
+                                reject(http.status); // reject
+                            }
+                        }
+                    });
+                // console.log("FINSIHED onload");
+                // if (http.readyState === 4) {
+                //     if (http.status === 200) {
+                //         console.log(http.responseText);
+                //     } else {
+                //         console.error(http.statusText);
+                //     }
+                // }
             http.send(uint8array);
+
+            return promise;
         }
 
         /**
