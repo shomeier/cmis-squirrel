@@ -1,4 +1,4 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, TextInput, Widget, device } from 'tabris';
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, Widget, device } from 'tabris';
 import { CmisSession, CmisRepository } from './cmisSession'
 import FolderPage from './folderPage';
 import Activity from './activity';
@@ -9,9 +9,10 @@ export default class RepositoriesPage extends Page {
 
     private imageView: ImageView;
 
-    private repoUrl:TextInput;
-    private repoUser:TextInput;
-    private repoPassword:TextInput;
+    private repoUrl: TextInput;
+    private repoUser: TextInput;
+    private repoPassword: TextInput;
+    private repoPicker: Picker;
 
     private navigationView: NavigationView;
 
@@ -22,7 +23,8 @@ export default class RepositoriesPage extends Page {
         let inputForm = this.createInputForm();
         let activityConnect = new Activity(inputForm);
         this.button = new Button({
-            top: ['#inputForm', 10], centerX: 0,
+            // top: ['#inputForm', 10], centerX: 0,
+            bottom: 10, centerX: 0,
             background: '#3b283e',
             textColor: '#f3f4e4',
             text: 'Connect to repository'
@@ -77,14 +79,30 @@ export default class RepositoriesPage extends Page {
             message: 'Password ...',
             text: 'test'
         }).appendTo(widget);
-        
-        // new Picker({
-        //     left: 0, right: 0, top: ["#repoPassword", 20],
-        //     itemCount: AIRPORTS.length,
-        //     itemText: (index) => AIRPORTS[index].name,
-        //     selectionIndex: 1
-        // }).appendTo(widget);
+        new Button({
+            left: 0, right: 0, top: ["#repoPassword", 20],
+            text: 'Choose Repository',
+            id: 'selectRepo',
+            background: '#3b283e',
+            textColor: '#f3f4e4'
+        }).on('select', () => {
+            CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
+                let repos = this.getRepositories()
+                console.log("Adding picker ...");
+                this.repoPicker = new Picker({
+                    left: 0, right: 0, top: ["#selectRepo", 20],
+                    itemCount: repos.length,
+                    itemText: (index) => repos[index],
+                    selectionIndex: 1
+                }).appendTo(widget);
+            });
+        }).appendTo(widget);
 
         return widget;
+    }
+
+    private getRepositories(): string[] {
+        let session = CmisSession.getSession();
+        return Object.keys(session.repositories);
     }
 }

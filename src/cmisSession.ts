@@ -8,11 +8,9 @@ export class CmisSession {
 
     public static init(url: string, user: string, password: string): Promise<void> {
 
-        // if (CmisSession._initialized == false) {
 
-        console.log("Creating CMIS Session with url: " + url + ", user: " + user + ', password: ' + password);
+        console.log("Initializing CMIS Session with url: " + url + ", user: " + user + ', password: ' + password);
         CmisSession._session = new cmis.CmisSession(url);
-
         // if (err) {
         //     CmisSession._session.setErrorHandler(err);
         // }
