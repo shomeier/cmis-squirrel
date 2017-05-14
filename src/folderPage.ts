@@ -86,19 +86,13 @@ export default class FolderPage extends Page {
                     let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
 
                     window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
-                        console.log("Got file ...");
                         fileEntry.file((file) => {
                             let reader = new FileReader();
                             reader.onloadend = function (e) {
                                 let content = reader.result;
 
-                                var longInt8View = new Uint8Array(content);
-                                let test = content;
-                                console.log("DECODED: " + test);
-
                                 console.log("Starting Activity ...");
-                                // activityUpload.startActivity();
-                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
+                                CmisSession.getSession().createDocument(folderId, content, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
                                     console.log("In Promise...!!!!");
                                     activityUpload.stopActivity();
                                 }).catch(() => {
@@ -107,29 +101,21 @@ export default class FolderPage extends Page {
                                     activityUpload.stopActivity();
                                 });
                                 console.log("After create Doc ...");
-
-                                // .then((response) => {
-                                //     console.log('Created Document...');
-                                //     console.log('Response: ' + JSON.stringify(response));
-                                //     activityIndicator.visible = false;
-                                //     contentColView.enabled = true;
-                                // });
-
                             }
 
                             reader.readAsArrayBuffer(file);
                         });
-                    }, (e) => {
+                    }, (fsErr) => {
                         activityUpload.stopActivity();
                         console.log("Failed reading file ...");
-                        console.log("e: " + JSON.stringify(e));
+                        console.log("e: " + JSON.stringify(fsErr));
 
                     });
 
-                }, (err) => {
+                }, (camErr) => {
                     activityUpload.stopActivity();
                     console.log('Camera error ...');
-                    console.log('Camera error: ' + JSON.stringify(err));
+                    console.log('Camera error: ' + JSON.stringify(camErr));
                 }, options);
             }).appendTo(this);
 
