@@ -94,7 +94,6 @@ export default class FolderPage extends Page {
             }
 
             this.button = new Button({
-                // top: ['#contentCollectionView', 10], centerX: 0, width: ,
                 top: ['#contentCollectionView', 10], left: 10, right: 10,
                 background: '#3b283e',
                 textColor: '#f3f4e4',
@@ -130,7 +129,7 @@ export default class FolderPage extends Page {
                                 var longInt8View = new Uint8Array(content);
                                 let test = content;
                                 console.log("DECODED: " + test);
-                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId' : 'cmis:document'} );
+                                CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' });
                                 // .then((response) => {
                                 //     console.log('Created Document...');
                                 //     console.log('Response: ' + JSON.stringify(response));
@@ -147,11 +146,17 @@ export default class FolderPage extends Page {
                     }, (e) => {
                         console.log("Failed reading file ...");
                         console.log("e: " + JSON.stringify(e));
+
+                        activityIndicator.visible = false;
+                        contentColView.enabled = true;
                     });
 
                 }, (err) => {
                     console.log('Camera error ...');
                     console.log('Camera error: ' + JSON.stringify(err));
+
+                    activityIndicator.visible = false;
+                    contentColView.enabled = true;
                 },
                     options);
             }
@@ -206,7 +211,7 @@ export default class FolderPage extends Page {
             cellHeight: device.platform === 'iOS' ? 60 : 68,
             createCell: this.createCell,
             // itemHeight: device.platform === 'iOS' ? 60 : 68
-        }).on('select', ( {index} ) => {
+        }).on('select', ({ index }) => {
             let item = myData[index];
             console.log("In Select EventHandler ... index: " + index);
             console.log("Item selected: " + JSON.stringify(item));
