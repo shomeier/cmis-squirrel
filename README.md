@@ -1,5 +1,5 @@
 # CMIS Squirrel
-Mobile CMIS Client for AtomPub Binding.
+Mobile iOS/Android CMIS Client for AtomPub Binding.
 Build with the Tabris.js framework.
 
 Using modified version https://github.com/agea/CmisJS/ with minimal dependencies to work with Tabris.js.
