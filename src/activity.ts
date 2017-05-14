@@ -1,25 +1,33 @@
-import { ActivityIndicator, Widget, ui } from 'tabris';
+import { ActivityIndicator, Composite, Widget, ui } from 'tabris';
 
 
 export default class Activity {
 
-    private static _activityIndicator: ActivityIndicator = null;
+    private activityIndicator: ActivityIndicator;
 
-    public static startActivity(widget: Widget): void {
-        if (!Activity._activityIndicator) {
-            Activity._activityIndicator = new ActivityIndicator({
-                centerX: 0,
-                centerY: 0,
-                visible: false,
-            }).appendTo(ui.contentView);
+    private widget: Widget;
+
+    constructor(widget: Widget) {
+        this.widget = widget;
+        this.activityIndicator = new ActivityIndicator({
+            centerX: 0,
+            centerY: 0,
+            visible: false,
+        });
+        if (widget instanceof Composite && !widget.isDisposed) {
+            this.activityIndicator.appendTo(widget);
+        } else {
+            this.activityIndicator.appendTo(ui.contentView);
         }
-
-         Activity._activityIndicator.visible = true;
-        widget.enabled = false;
     }
 
-    public static stopActivity(widget: Widget): void {
-        Activity._activityIndicator.visible = false;
-        widget.enabled = true;
+    public startActivity(): void {
+        this.activityIndicator.visible = true;
+        this.widget.enabled = false;
+    }
+
+    public stopActivity(): void {
+        this.activityIndicator.visible = false;
+        this.widget.enabled = true;
     }
 }

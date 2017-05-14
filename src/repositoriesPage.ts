@@ -20,6 +20,7 @@ export default class RepositoriesPage extends Page {
         this.navigationView = navigationView;
         this.imageView = this.createLogo();
         let inputForm = this.createInputForm();
+        let activityConnect = new Activity(inputForm);
         this.button = new Button({
             top: ['#inputForm', 10], centerX: 0,
             background: '#3b283e',
@@ -27,12 +28,12 @@ export default class RepositoriesPage extends Page {
             text: 'Connect to repository'
         }).on('select', () => {
             console.log('Connection to repository ...');
-            Activity.startActivity(inputForm);
+            activityConnect.startActivity();
             CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
+                activityConnect.stopActivity();
                 let session = CmisSession.getSession();
                 console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                 let rootFolderId = session.defaultRepository.rootFolderId;
-                Activity.stopActivity(inputForm);
                 new FolderPage(rootFolderId, this.navigationView,
                     {
                         title: '/'
@@ -60,20 +61,21 @@ export default class RepositoriesPage extends Page {
             left: 0, right: 0, top: ["#repoName", 10],
             id: 'repoUrl',
             message: 'URL of the CMIS repository ...',
-            text: 'http://192.168.1.102:8083/cmisBrowser'
+            // text: 'http://192.168.1.102:8083/cmisBrowser'
+            text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
         }).appendTo(widget);
         this.repoUser = new TextInput({
             left: 0, right: 0, top: ["#repoUrl", 10],
             id: 'repoUser',
             message: 'Username ...',
-            text: 'test'
+            text: 'admin'
         }).appendTo(widget);
         this.repoPassword = new TextInput({
             left: 0, right: 0, top: ["#repoUser", 10],
             type: 'password',
             id: 'repoPassword',
             message: 'Password ...',
-            text: 'test'
+            text: 'admin'
         }).appendTo(widget);
         
         // new Picker({

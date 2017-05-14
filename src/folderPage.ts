@@ -1,6 +1,6 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { CmisSession, CmisRepository } from './cmisSession'
-// import PropertiesPage from './propertiesPage';
+import Activity from './activity';
 const roundTo = require('round-to');
 declare var navigator: any;
 declare var FileTransfer: any;
@@ -46,8 +46,6 @@ export default class FolderPage extends Page {
 
     private navigationView: NavigationView;
 
-    private activityIndicator: ActivityIndicator;
-
     private data: any;
 
     constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
@@ -57,12 +55,8 @@ export default class FolderPage extends Page {
         this.appendTo(navigationView);
         let session = CmisSession.getSession();
 
-        this.activityIndicator = new ActivityIndicator({
-            centerX: 0,
-            centerY: 0,
-            visible: true,
-        }).appendTo(this);
-
+        let activityGetChildren = new Activity(navigationView);
+        activityGetChildren.startActivity();
         session.getChildren(folderId).then(data => {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
@@ -101,18 +95,13 @@ export default class FolderPage extends Page {
             }).on('select', () => {
                 console.log('Upload button pressed ...');
 
-                let activityIndicator = this.activityIndicator;
-                let contentColView = this.collectionView;
-
-                activityIndicator.visible = true;
-                contentColView.enabled = false;
-
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
                     'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
                     'quality': 10
                 };
 
+                let activityUpload = new Activity(this.collectionView);
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
@@ -129,6 +118,8 @@ export default class FolderPage extends Page {
                                 var longInt8View = new Uint8Array(content);
                                 let test = content;
                                 console.log("DECODED: " + test);
+
+                                activityUpload.startActivity();
                                 CmisSession.getSession().createDocument(folderId, test, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' });
                                 // .then((response) => {
                                 //     console.log('Created Document...');
@@ -136,8 +127,7 @@ export default class FolderPage extends Page {
                                 //     activityIndicator.visible = false;
                                 //     contentColView.enabled = true;
                                 // });
-                                activityIndicator.visible = false;
-                                contentColView.enabled = true;
+                                activityUpload.stopActivity();
 
                             }
 
@@ -147,22 +137,15 @@ export default class FolderPage extends Page {
                         console.log("Failed reading file ...");
                         console.log("e: " + JSON.stringify(e));
 
-                        activityIndicator.visible = false;
-                        contentColView.enabled = true;
                     });
 
                 }, (err) => {
                     console.log('Camera error ...');
                     console.log('Camera error: ' + JSON.stringify(err));
+                }, options);
+            }).appendTo(this);
 
-                    activityIndicator.visible = false;
-                    contentColView.enabled = true;
-                },
-                    options);
-            }
-                ).appendTo(this);
-
-            this.activityIndicator.visible = false;
+            activityGetChildren.stopActivity();
         });
     }
 
@@ -172,7 +155,6 @@ export default class FolderPage extends Page {
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
-            // items: data,
             itemCount: this.data.length,
             updateCell: (cell, index) => {
                 console.log("In updateCell at index: " + index);
@@ -220,7 +202,6 @@ export default class FolderPage extends Page {
             if (item.cmisBaseTypeId == 'cmis:folder') {
                 let folderPage = new FolderPage(item.cmisObjectId, this.navigationView,
                     {
-                        // background: '#f3f4e4',
                         title: item.cmisName
                     });
             } else if (item.cmisBaseTypeId == 'cmis:document') {
@@ -243,13 +224,9 @@ export default class FolderPage extends Page {
     private createCell(cellType: string): Widget {
         let widget = new Composite({
             left: 20, right: 20,
-            // background: '#bbb'
-            // background: '#3b283e'
         });
         let cmp = new Composite({
             left: 20, right: 20, bottom: 0, height: 1,
-            // background: '#bbb'
-            // background: '#3b283e'
             background: '#d2cab5'
         }).appendTo(widget);
         let icon = new ImageView({
@@ -260,7 +237,6 @@ export default class FolderPage extends Page {
         let objectName = new TextView({
             left: 60, top: 8,
             id: 'objectName',
-            // textColor: '#4a4a4a'
             textColor: '#3b283e'
         }).appendTo(widget);
         let objectSize = new TextView({
@@ -348,31 +324,26 @@ export default class FolderPage extends Page {
     private openContent(fileId: string, fileName: string): void {
         // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer
         // TODO: Check if doing sth. like this is ok
-        let activityIndicator = this.activityIndicator;
-        let contentColView = this.collectionView;
-
-        activityIndicator.visible = true;
-        contentColView.enabled = false;
+        let activityDownload = new Activity(this.collectionView);
 
         let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
         let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
         console.log('TARGET: ' + target);
+        activityDownload.startActivity();
         fileTransfer.download(
             url,
             target,
             function (entry) {
+                activityDownload.stopActivity();
                 console.log("download complete: " + decodeURIComponent(entry.toURL()));
-                activityIndicator.visible = false;
-                contentColView.enabled = true;
                 cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
                     console.log("CALLBACK CALLLED !!!!!");
                     console.log("data fileOpener CB: " + JSON.stringify(data));
                 });
             },
             function (error) {
-                activityIndicator.visible = false;
-                contentColView.enabled = true;
+                activityDownload.stopActivity();
                 console.log("download error complete: " + JSON.stringify(error));
                 console.log("download error source: " + JSON.stringify(error.source));
                 console.log("download error target: " + JSON.stringify(error.target));
