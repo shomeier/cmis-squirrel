@@ -6,17 +6,11 @@ export class CmisSession {
 
     private static _session: cmis.CmisSession = null;
 
-    public static addRepository(repo:CmisRepository): Promise<void> {
-
-        console.log('Adding repo: ' + JSON.stringify(repo));
-        // TODO: return Promise here ...
-        return;
-    } 
-
     public static init(url: string, user: string, password: string): Promise<void> {
 
         // if (CmisSession._initialized == false) {
 
+        console.log("Creating CMIS Session with url: " + url + ", user: " + user + ', password: ' + password);
         CmisSession._session = new cmis.CmisSession(url);
 
         // if (err) {

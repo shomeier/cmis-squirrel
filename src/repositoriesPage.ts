@@ -1,7 +1,7 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, Widget, device } from 'tabris';
-import { CmisSession, CmisRepository} from './cmisSession'
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, NavigationView, ImageView, TextView, TextInput, Widget, device } from 'tabris';
+import { CmisSession, CmisRepository } from './cmisSession'
 import FolderPage from './folderPage';
-import RepositorySettingsPage from './repositorySettingsPage';
+import Activity from './activity';
 
 export default class RepositoriesPage extends Page {
 
@@ -9,44 +9,37 @@ export default class RepositoriesPage extends Page {
 
     private imageView: ImageView;
 
-    private collectionView: CollectionView;
+    private repoUrl:TextInput;
+    private repoUser:TextInput;
+    private repoPassword:TextInput;
 
     private navigationView: NavigationView;
-
-    private static _exampleData = [
-        {
-            name: "Alfresco CMIS Demo Server",
-            url: "https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser",
-            user: "admin",
-            password: "admin"
-        },
-        {
-            name: "apollon CMIS Server",
-            url: "http://192.168.1.102:8083/cmisBrowser",
-            user: 'test',
-            password: 'test'
-        }
-    ];
 
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
         this.imageView = this.createLogo();
-        this.collectionView = this.createRepositoriesCollection();
-        this.collectionView.appendTo(this);
+        let inputForm = this.createInputForm();
         this.button = new Button({
-            top: ['#repositoriesCollection', 10], centerX: 0,
+            top: ['#inputForm', 10], centerX: 0,
             background: '#3b283e',
             textColor: '#f3f4e4',
-            text: 'Add New Repository'
+            text: 'Connect to repository'
         }).on('select', () => {
-            console.log('Adding repository ...');
-            let settingsPage = new RepositorySettingsPage(this.navigationView, {
-                title: 'Add New Repository',
-                background: '#f3f4e4',
-                id: 'settingsPage'
-            }).appendTo(this.navigationView);
+            console.log('Connection to repository ...');
+            Activity.startActivity(inputForm);
+            CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
+                let session = CmisSession.getSession();
+                console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
+                let rootFolderId = session.defaultRepository.rootFolderId;
+                Activity.stopActivity(inputForm);
+                new FolderPage(rootFolderId, this.navigationView,
+                    {
+                        title: '/'
+                    });
+            }).catch((err) => { console.log(err) })
         }).appendTo(this);
+
     }
 
     private createLogo(): ImageView {
@@ -57,62 +50,39 @@ export default class RepositoriesPage extends Page {
         }).appendTo(this);
     }
 
-    private createRepositoriesCollection() {
-        return new CollectionView({
-            left: 10, top: ['#logo', 50], right: 0, bottom: 80,
-            id: 'repositoriesCollection',
-            itemCount: RepositoriesPage._exampleData.length,
-            cellHeight: device.platform === 'iOS' ? 40 : 48,
-            updateCell: this.updateCell,
-            createCell: this.createCell
-        }).on('select', ({ index }) => {
-            let item = RepositoriesPage._exampleData[index];
-            console.log('selected XXX: ' + JSON.stringify(item));
-            CmisSession.init(item.url, item.user, item.password).then(() => {
-                let session = CmisSession.getSession();
-                console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
-                let rootFolderId = session.defaultRepository.rootFolderId;
-                new FolderPage(rootFolderId, this.navigationView,
-                    {
-                        title: '/'
-                    });
-            }).catch((err) => {console.log(err)})
-        });
-    }
-
-    private createCell(cellType: string): Widget {
+    private createInputForm(): Widget {
         let widget = new Composite({
-            left: 20, right: 20,
+            left: 20, right: 20, top: ["#logo", 50],
+            id: 'inputForm',
             background: '#f3f4e4'
-        });
-        let line = new Composite({
-            left: 20, right: 20, bottom: 0, height: 1,
-            background: '#d2cab5'
+        }).appendTo(this);
+        this.repoUrl = new TextInput({
+            left: 0, right: 0, top: ["#repoName", 10],
+            id: 'repoUrl',
+            message: 'URL of the CMIS repository ...',
+            text: 'http://192.168.1.102:8083/cmisBrowser'
         }).appendTo(widget);
-        var textView = new TextView({
-            left: 10, centerY: 0,
-            font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
-            textColor: '#3b283e'
+        this.repoUser = new TextInput({
+            left: 0, right: 0, top: ["#repoUrl", 10],
+            id: 'repoUser',
+            message: 'Username ...',
+            text: 'test'
         }).appendTo(widget);
-        var settingsView = new ImageView({
-            right: 10, top: 10, bottom: 10,
-            image: 'icons/acorn.png'
+        this.repoPassword = new TextInput({
+            left: 0, right: 0, top: ["#repoUser", 10],
+            type: 'password',
+            id: 'repoPassword',
+            message: 'Password ...',
+            text: 'test'
         }).appendTo(widget);
-        widget.on('select', function ({ index }) {
-            textView.set('text', RepositoriesPage._exampleData[index].name);
-        });
+        
+        // new Picker({
+        //     left: 0, right: 0, top: ["#repoPassword", 20],
+        //     itemCount: AIRPORTS.length,
+        //     itemText: (index) => AIRPORTS[index].name,
+        //     selectionIndex: 1
+        // }).appendTo(widget);
+
         return widget;
-    }
-
-    private updateCell(cell, index) {
-        console.log("In updateCell at index: " + index);
-        let data = RepositoriesPage._exampleData[index];
-        cell.apply({
-            TextView: { text: data.name }
-        });
-    }
-
-    private getRepositoriesData() {
-        return RepositoriesPage._exampleData;
     }
 }
