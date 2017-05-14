@@ -1,6 +1,7 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { CmisSession, CmisRepository } from './cmisSession'
 import Activity from './activity';
+import Base64 from './lib/base64';
 const roundTo = require('round-to');
 declare var navigator: any;
 declare var FileTransfer: any;
@@ -10,31 +11,6 @@ declare var Camera: any;
 declare var global: any;
 declare var FileReader: any;
 declare var window: any;
-
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function atob(input) {
-    var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-    if (str.length % 4 == 1) {
-        throw new console.error("'atob' failed: The string to be decoded is not correctly encoded.");
-    }
-    for (
-        // initialize result and counters
-        var bc = 0, bs, buffer, idx = 0, output = '';
-        // get next character
-        buffer = str.charAt(idx++);
-        // character found in table? initialize bit storage and add its ascii value;
-        ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-            // and if not first of each 4 characters,
-            // convert the first 8 bits to one ascii character
-            bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-        // try to find character in table (0-63, not found => -1)
-        buffer = chars.indexOf(buffer);
-    }
-    // return input;
-    return output;
-};
 
 export default class FolderPage extends Page {
 
@@ -84,7 +60,7 @@ export default class FolderPage extends Page {
             if (device.platform === "iOS") {
                 // var base64 = require('base64');
                 // global.btoa = base64.btoa;
-                global.atob = atob;
+                global.atob = Base64.atob;
             }
 
             this.button = new Button({
@@ -101,7 +77,7 @@ export default class FolderPage extends Page {
                     'quality': 10
                 };
 
-                let activityUpload = new Activity(this.collectionView);
+                let activityUpload = new Activity(this.navigationView);
                 navigator.camera.getPicture((imageData) => {
                     console.log('Camera Success ...');
                     console.log('Camera Success Image Data: ' + JSON.stringify(imageData));

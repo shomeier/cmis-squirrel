@@ -1,31 +1,9 @@
+import Base64 from './base64';
 // import 'isomorphic-fetch';
 // import { URLSearchParams } from 'urlsearchparams';
 // import { btoa } from 'isomorphic-base64';
 // import { FormData } from 'form-data';
 // declare var fileEntry: any;
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function btoa(input) {
-    var str = String(input);
-    for (
-        // initialize result and counter
-        var block, charCode, idx = 0, map = chars, output = '';
-        // if the next str index does not exist:
-        // change the mapping table to "="
-        // check if d has no fractional digits
-        str.charAt(idx | 0) || (map = '=', idx % 1);
-        // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-        output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-        charCode = str.charCodeAt(idx += 3 / 4);
-        if (charCode > 0xFF) {
-            console.error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-        }
-        block = block << 8 | charCode;
-    }
-    return output;
-};
-
 export namespace cmis {
 
     export class QueryOptions {
@@ -251,7 +229,7 @@ export namespace cmis {
             let auth: string;
 
             if (this.username && this.password) {
-                auth = 'Basic ' + btoa(`${this.username}:${this.password}`);
+                auth = 'Basic ' + Base64.btoa(`${this.username}:${this.password}`);
                 console.log("Auth: " + auth);
             } else if (this.token) {
                 auth = `Bearer ${this.token}`;
@@ -573,7 +551,7 @@ export namespace cmis {
             let auth: string;
 
             if (this.username && this.password) {
-                auth = 'Basic ' + btoa(`${this.username}:${this.password}`);
+                auth = 'Basic ' + Base64.btoa(`${this.username}:${this.password}`);
                 console.log("Auth: " + auth);
             } else if (this.token) {
                 auth = `Bearer ${this.token}`;
