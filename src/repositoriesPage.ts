@@ -27,7 +27,7 @@ export default class RepositoriesPage extends Page {
             bottom: 10, centerX: 0,
             background: '#3b283e',
             textColor: '#f3f4e4',
-            text: 'Connect to repository'
+            text: 'Connect to Repository'
         }).on('select', () => {
             console.log('Connection to repository ...');
             activityConnect.startActivity();
