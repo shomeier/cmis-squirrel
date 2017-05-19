@@ -626,11 +626,10 @@ export namespace cmis {
             // Call a function when the state 
             http.onreadystatechange = function () {
                 console.log("FINSIHED onreadystate");
-                if (http.readyState == 4 && http.status == 200) {
-                    console.error("Error in xmlhtp: " + http.responseText);
-                }
-                if (http.readyState == 200) {
-                    console.log("FINSIHED UPLOAD");
+                if (http.readyState == 4 && http.status >= 200 && http.status <= 299) {
+                    console.log("Successfull: " + http.responseText);
+                } else {
+                    console.log("Error: " + http.responseText);
                 }
             }
             // let promise: Promise<any>;
@@ -638,7 +637,7 @@ export namespace cmis {
             let promise = new Promise(
                     function (resolve, reject) {
                         http.onload = function (e) {
-                            if (http.readyState === 4 && http.status === 200) {
+                            if (http.readyState === 4 && http.status >= 200 && http.status <= 299) {
                                 resolve(http.response); // fulfilled
                             } else {
                                 reject(http.status); // reject

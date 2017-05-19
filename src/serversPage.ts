@@ -88,6 +88,7 @@ export default class ServersPage extends Page {
             id: 'repoUser',
             message: 'Username ...',
             text: 'test'
+            // text: 'admin'
         }).appendTo(widget);
         this.repoPassword = new TextInput({
             left: 0, right: 0, top: ["#repoUser", 10],
@@ -95,14 +96,8 @@ export default class ServersPage extends Page {
             id: 'repoPassword',
             message: 'Password ...',
             text: 'test'
+            // text: 'admin'
         }).appendTo(widget);
-        // new Button({
-        //     left: 0, right: 0, top: ["#repoPassword", 20],
-        //     text: 'Choose Repository',
-        //     id: 'selectRepo',
-        //     background: '#3b283e',
-        //     textColor: '#f3f4e4'
-        // }).appendTo(widget);
 
         return widget;
     }

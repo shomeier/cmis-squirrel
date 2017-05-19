@@ -94,10 +94,61 @@ export default class FolderPage extends Page {
                                 console.log("Starting Activity ...");
                                 CmisSession.getSession().createDocument(folderId, content, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
                                     console.log("In Promise...!!!!");
+
+                                    // ------
+                                    CmisSession.getSession().getChildren(folderId).then((newData) => {
+                                        console.log("Getting children ...");
+                                        let cmisObjects: any[] = newData.objects;
+                                        let tmpData: any[] = new Array(newData.objects.length);
+                                        for (let i = 0; i < cmisObjects.length; i++) {
+                                            // console.log(i + " ----------------------------------");
+                                            let tmp: any = {};
+                                            tmp.cmisObjectId = cmisObjects[i].object.properties['cmis:objectId'].value;
+                                            tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
+                                            tmp.cmisBaseTypeId = cmisObjects[i].object.properties['cmis:baseTypeId'].value;
+                                            if (cmisObjects[i].object.properties['cmis:contentStreamLength']) {
+                                                tmp.cmisContentStreamLength = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
+                                            }
+                                            tmpData[i] = tmp;
+                                            console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
+                                            console.log("cmisName: " + tmpData[i].cmisName);
+                                            console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
+                                            console.log("contentStreamLength: " + tmpData[i].cmisContentStreamLength);
+                                        }
+                                        console.log("Storing data ...");
+                                        console.log("this.data.length: " + this.data.length);
+
+                                        if (this.data.length < tmpData.length) {
+                                            console.log("One item seems to be added ...");
+                                            let j = 0;
+                                            for (j = 0; j < this.data.length; j++) {
+                                                if (this.data[j].cmisObjectId != tmpData[j].cmisObjectId) {
+                                                    break;
+                                                }
+                                            } 
+                                            this.data = tmpData;
+
+                                            console.log("Refreshing collection view ...");
+                                            this.collectionView.insert(j);
+                                            // this.collectionView.itemCount = this.data.length;
+                                            // this.collectionView.refresh();
+                                        } else {
+                                            console.log("this.data.length: " + this.data.length);
+                                            console.log("tmpData.length: " + tmpData.length);
+                                        }
+                                        console.log("Stopping activity ...");
+                                        
+                                        // ----- 
+                                        // colView.refresh();
                                     activityUpload.stopActivity();
-                                }).catch(() => {
+                                    });
+                                    // ------
+
+
+                                }).catch((err) => {
 
                                     console.log("In Catch Promise...!!!!");
+                                    console.log("Err: " + JSON.stringify(err));
                                     activityUpload.stopActivity();
                                 });
                                 console.log("After create Doc ...");
