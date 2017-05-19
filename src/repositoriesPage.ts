@@ -1,108 +1,99 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, Widget, device } from 'tabris';
+import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { CmisSession, CmisRepository } from './cmisSession'
-import FolderPage from './folderPage';
 import Activity from './activity';
+import FolderPage from './folderPage';
+declare var navigator: any;
+declare var FileTransfer: any;
+declare var FileUploadOptions: any;
+declare var cordova: any;
+declare var Camera: any;
+declare var global: any;
+declare var FileReader: any;
+declare var window: any;
 
 export default class RepositoriesPage extends Page {
 
-    private button: Button;
-
-    private imageView: ImageView;
-
-    private repoUrl: TextInput;
-    private repoUser: TextInput;
-    private repoPassword: TextInput;
-    private repoPicker: Picker;
+    private collectionView: CollectionView;
 
     private navigationView: NavigationView;
 
-    constructor(navigationView: NavigationView, properties?: PageProperties) {
+    private repositories: string[];
+
+    constructor(navigationView: NavigationView, repositories: string[], properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
-        this.imageView = this.createLogo();
-        let inputForm = this.createInputForm();
-        let activityConnect = new Activity(inputForm);
-        this.button = new Button({
-            // top: ['#inputForm', 10], centerX: 0,
-            bottom: 10, centerX: 0,
-            background: '#3b283e',
-            textColor: '#f3f4e4',
-            text: 'Connect to Repository'
-        }).on('select', () => {
-            console.log('Connection to repository ...');
-            activityConnect.startActivity();
-            CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
-                activityConnect.stopActivity();
-                let session = CmisSession.getSession();
-                console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
-                let rootFolderId = session.defaultRepository.rootFolderId;
-                new FolderPage(rootFolderId, this.navigationView,
+        this.repositories = repositories;
+        this.appendTo(navigationView);
+        this.collectionView = this.createContentCollectionView();
+        this.collectionView.appendTo(this);
+    }
+
+    private createContentCollectionView() {
+        let navigationView = this.navigationView;
+        let myRepos = this.repositories;
+        console.log("this.repositories.length: " + this.repositories.length);
+        return new CollectionView({
+            left: 0, top: 0, right: 0, bottom: 62,
+            id: 'contentCollectionView',
+            itemCount: this.repositories.length,
+            updateCell: this.updateCell,
+            cellHeight: device.platform === 'iOS' ? 60 : 68,
+            createCell: this.createCell,
+            // itemHeight: device.platform === 'iOS' ? 60 : 68
+        }).on('select', ({ index }) => {
+            let item = this.repositories[index];
+            console.log("In Select EventHandler ... index: " + index);
+            console.log("Item selected: " + JSON.stringify(item));
+            console.log("Creating sub content page ...");
+            let session = CmisSession.getSession();
+            console.log("Session repos: " + JSON.stringify(session.repositories[item]));
+            console.log("Default repo: " + JSON.stringify(session.defaultRepository ));
+            session.defaultRepository = session.repositories[item];
+            let rootFolderId = session.repositories[item].rootFolderId
+                let folderPage = new FolderPage(rootFolderId, this.navigationView,
                     {
                         title: '/'
                     });
-            }).catch((err) => { console.log(err) })
-        }).appendTo(this);
-
+            console.log("Created sub content page ...");
+        });
     }
 
-    private createLogo(): ImageView {
-        return new ImageView({
-            top: 50, centerX: 0,
-            id: 'logo',
-            image: 'icons/squirrel_200.png'
-        }).appendTo(this);
-    }
-
-    private createInputForm(): Widget {
+    private createCell(cellType: string): Widget {
         let widget = new Composite({
-            left: 20, right: 20, top: ["#logo", 50],
-            id: 'inputForm',
-            background: '#f3f4e4'
-        }).appendTo(this);
-        this.repoUrl = new TextInput({
-            left: 0, right: 0, top: ["#repoName", 10],
-            id: 'repoUrl',
-            message: 'URL of the CMIS repository ...',
-            text: 'http://192.168.1.102:8083/cmisBrowser'
-            // text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
+            left: 20, right: 20,
+        });
+        let cmp = new Composite({
+            left: 20, right: 20, bottom: 0, height: 1,
+            background: '#d2cab5'
         }).appendTo(widget);
-        this.repoUser = new TextInput({
-            left: 0, right: 0, top: ["#repoUrl", 10],
-            id: 'repoUser',
-            message: 'Username ...',
-            text: 'test'
+        let icon = new ImageView({
+            left: 15, top: 15, bottom: 15,
+            id: 'icon',
+            scaleMode: 'fit'
         }).appendTo(widget);
-        this.repoPassword = new TextInput({
-            left: 0, right: 0, top: ["#repoUser", 10],
-            type: 'password',
-            id: 'repoPassword',
-            message: 'Password ...',
-            text: 'test'
+        let repositoryName = new TextView({
+            left: 60, centerY: 0,
+            font: device.platform === 'iOS' ? '23px .HelveticaNeueInterface-Regular' : '20px Roboto Medium',
+            id: 'repositoryName',
+            textColor: '#3b283e'
         }).appendTo(widget);
-        new Button({
-            left: 0, right: 0, top: ["#repoPassword", 20],
-            text: 'Choose Repository',
-            id: 'selectRepo',
-            background: '#3b283e',
-            textColor: '#f3f4e4'
-        }).on('select', () => {
-            CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
-                let repos = this.getRepositories()
-                console.log("Adding picker ...");
-                this.repoPicker = new Picker({
-                    left: 0, right: 0, top: ["#selectRepo", 20],
-                    itemCount: repos.length,
-                    itemText: (index) => repos[index],
-                    selectionIndex: 1
-                }).appendTo(widget);
-            });
-        }).appendTo(widget);
+        widget.on('change:item', ({ value: item }) => {
+            // TODO: Still a bug here: Sometimes file size is added to folder types when scrolling
+            // Mybe bug in Tabris.js framework ?!?
+            repositoryName.set('text', item);
+        });
 
         return widget;
     }
 
-    private getRepositories(): string[] {
-        let session = CmisSession.getSession();
-        return Object.keys(session.repositories);
+    private updateCell(cell, index) {
+        let repositories = Object.keys(CmisSession.getSession().repositories);
+        console.log("In updateCell at index: " + index);
+        let item = repositories[index];
+        cell.apply({
+            '#icon': { 'image': 'icons/acorn.png' },
+            // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
+            '#repositoryName': { 'text': item }
+        });
     }
 }

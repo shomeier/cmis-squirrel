@@ -1,6 +1,6 @@
 import { ActivityIndicator, ui, Button, TextView, NavigationView, Page } from 'tabris';
 import { cmis } from './lib/cmis';
-import RepositoriesPage from './repositoriesPage';
+import ServersPage from './serversPage';
 import FolderPage from './folderPage';
 
 let contentNavigationView = new NavigationView({
@@ -11,8 +11,8 @@ let contentNavigationView = new NavigationView({
 // squirrel bg: '#f3f4e4'
 // squirrel itself (dark brown):  '#3b283e'
 // squirrel shadow: '#d2cab5'
-let repositoriesPage = new RepositoriesPage(contentNavigationView, {
+let repositoriesPage = new ServersPage(contentNavigationView, {
   title: 'CMIS Squirrel',
   background: '#f3f4e4',
-  id: 'repositoriesPage'
+  id: 'serversPage'
 }).appendTo(contentNavigationView);
