@@ -35,7 +35,7 @@ export default class ServersPage extends Page {
             CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
                 let repos = this.getRepositories()
                 if (repos.length > 1) {
-
+                    // open repositories page if the server has more than one repo
                     new RepositoriesPage(this.navigationView, repos, {
                         title: 'Repositories',
                         background: '#f3f4e4',
@@ -43,6 +43,7 @@ export default class ServersPage extends Page {
                     }).appendTo(this.navigationView);
 
                 } else {
+                    // if server has only one repo just open the root folder
                     activityConnect.startActivity();
                     CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
                         activityConnect.stopActivity();

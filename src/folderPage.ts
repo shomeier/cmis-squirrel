@@ -248,51 +248,6 @@ export default class FolderPage extends Page {
         });
 
         return widget;
-        // let navigationView = this.navigationView;
-        // cell.on('longpress', function ({target}) {
-        //     console.log("LONGPRESS ON CELL !!!!!!");
-        //     console.log("ITEM: " + JSON.stringify(target.item));
-        //     // TODO: Open another page with metdata/properties here
-        //     new PropertisPage(target.item.cmisObjectId, navigationView,
-        //         {
-        //             title: target.item.cmisName
-        //         });
-        // });
-    }
-
-    private updateCell(cell, index) {
-        console.log("In updateCell at index: " + index);
-        let item = this.data[index];
-        if (item.cmisBaseTypeId == 'cmis:document') {
-            cell.apply({
-                '#icon': { 'image': 'icons/document.png' }
-            });
-            if (item.cmisContentStreamLength) {
-                let size: number = item.cmisContentStreamLength;
-                if (size < 1024) {
-                    cell.apply({
-                        '#objectSize': { 'text': size + ' Byte' }
-                    });
-                } else if (size < 1048576) {
-                    cell.apply({
-                        '#objectSize': { 'text': roundTo((size / 1024), 1) + ' KB' }
-                    });
-                } else if (size < 1073741824) {
-                    cell.apply({
-                        '#objectSize': { 'text': roundTo((size / 1048576), 1) + ' MB' }
-                    });
-                }
-            }
-        } else {
-            cell.apply({
-                '#icon': { 'image': 'icons/folder.png' },
-                // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
-                '#objectSize': { 'text': '  ' }
-            });
-        }
-        cell.apply({
-            '#objectName': { 'text': item.cmisName }
-        });
     }
 
     private openContent(fileId: string, fileName: string): void {

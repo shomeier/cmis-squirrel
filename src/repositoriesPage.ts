@@ -2,14 +2,6 @@ import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProper
 import { CmisSession, CmisRepository } from './cmisSession'
 import Activity from './activity';
 import FolderPage from './folderPage';
-declare var navigator: any;
-declare var FileTransfer: any;
-declare var FileUploadOptions: any;
-declare var cordova: any;
-declare var Camera: any;
-declare var global: any;
-declare var FileReader: any;
-declare var window: any;
 
 export default class RepositoriesPage extends Page {
 
@@ -39,7 +31,6 @@ export default class RepositoriesPage extends Page {
             updateCell: this.updateCell,
             cellHeight: device.platform === 'iOS' ? 60 : 68,
             createCell: this.createCell,
-            // itemHeight: device.platform === 'iOS' ? 60 : 68
         }).on('select', ({ index }) => {
             let item = this.repositories[index];
             console.log("In Select EventHandler ... index: " + index);
@@ -77,11 +68,6 @@ export default class RepositoriesPage extends Page {
             id: 'repositoryName',
             textColor: '#3b283e'
         }).appendTo(widget);
-        widget.on('change:item', ({ value: item }) => {
-            // TODO: Still a bug here: Sometimes file size is added to folder types when scrolling
-            // Mybe bug in Tabris.js framework ?!?
-            repositoryName.set('text', item);
-        });
 
         return widget;
     }
@@ -92,7 +78,6 @@ export default class RepositoriesPage extends Page {
         let item = repositories[index];
         cell.apply({
             '#icon': { 'image': 'icons/acorn.png' },
-            // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
             '#repositoryName': { 'text': item }
         });
     }
