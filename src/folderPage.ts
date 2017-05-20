@@ -202,9 +202,15 @@ export default class FolderPage extends Page {
                             });
                         }
                     }
-                } else {
+                } else if (item.cmisBaseTypeId == 'cmis:folder')  {
                     cell.apply({
                         '#icon': { 'image': 'icons/folder.png' },
+                        // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
+                        '#objectSize': { 'text': '  ' }
+                    });
+                } else {
+                    cell.apply({
+                        '#icon': { 'image': 'icons/placeholder.png' },
                         // we need to set the object size to sth. to prevent randomly setting text while scrolling (bug?!?s)
                         '#objectSize': { 'text': '  ' }
                     });
