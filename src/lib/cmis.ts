@@ -527,9 +527,21 @@ export namespace cmis {
             urlOptions.repositoryId = this.defaultRepository.repositoryId;
             urlOptions.cmisaction = 'createDocument';
 
-            return this.postMultipartForm(this.defaultRepository.rootFolderUrl,
-                content, properties, urlOptions);
+            let response = this.postMultipartForm(this.defaultRepository.rootFolderUrl,
+                content, properties, urlOptions).then(res => {
+                    console.log("RESPONSE STATUS: " + res);
+                    if (res.status < 200 || res.status > 299) {
+                        console.log("Creating new HTTPError ....")
+                        throw new HTTPError(res);
+                    }
+                    return res;
+                });
 
+            if (this.errorHandler) {
+                response.catch(this.errorHandler);
+            }
+
+            return response;
         };
 
         private postMultipartForm(url, content, properties: any, urlOptions?: any): Promise<any> {
@@ -635,23 +647,23 @@ export namespace cmis {
             // let promise: Promise<any>;
             // http.onload = function (e) {
             let promise = new Promise(
-                    function (resolve, reject) {
-                        http.onload = function (e) {
-                            if (http.readyState === 4 && http.status >= 200 && http.status <= 299) {
-                                resolve(http.response); // fulfilled
-                            } else {
-                                reject(http.status); // reject
-                            }
-                        }
-                    });
-                // console.log("FINSIHED onload");
-                // if (http.readyState === 4) {
-                //     if (http.status === 200) {
-                //         console.log(http.responseText);
-                //     } else {
-                //         console.error(http.statusText);
-                //     }
-                // }
+                function (resolve, reject) {
+                    http.onload = function (e) {
+                        // if (http.readyState === 4 && http.status >= 200 && http.status <= 299) {
+                            resolve(http.response); // fulfilled
+                        // } else {
+                            // reject(http.response); // reject
+                        // }
+                    }
+                });
+            // console.log("FINSIHED onload");
+            // if (http.readyState === 4) {
+            //     if (http.status === 200) {
+            //         console.log(http.responseText);
+            //     } else {
+            //         console.error(http.statusText);
+            //     }
+            // }
             http.send(uint8array);
 
             return promise;

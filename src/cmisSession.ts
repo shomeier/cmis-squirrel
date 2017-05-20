@@ -1,4 +1,5 @@
 import { cmis } from './lib/cmis';
+import ErrorMessage from './error';
 
 export class CmisSession {
 
@@ -12,7 +13,7 @@ export class CmisSession {
         console.log("Initializing CMIS Session with url: " + url + ", user: " + user + ', password: ' + password);
         CmisSession._session = new cmis.CmisSession(url);
         // if (err) {
-        //     CmisSession._session.setErrorHandler(err);
+            CmisSession._session.setErrorHandler((err) => { new ErrorMessage(err)});
         // }
 
         return CmisSession._session.setCredentials(user, password).loadRepositories().then(() => {
