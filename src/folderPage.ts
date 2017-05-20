@@ -22,7 +22,7 @@ export default class FolderPage extends Page {
 
     private navigationView: NavigationView;
 
-    private data: any;
+    private collectionViewData: any;
 
     constructor(folderId: string, navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
@@ -51,8 +51,8 @@ export default class FolderPage extends Page {
                 // console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
                 // console.log("contentStreamLength: " + tmpData[i].cmisContentStreamFileSize);
             }
-            this.data = tmpData;
-            this.collectionView = this.createContentCollectionView(this.data);
+            this.collectionViewData = tmpData;
+            this.collectionView = this.createContentCollectionView();
             this.collectionView.appendTo(this);
 
             // We need to set our 'atob' method to global scope for FileReader.readAsArrayBuffer()
@@ -88,18 +88,17 @@ export default class FolderPage extends Page {
                     window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
                         fileEntry.file((file) => {
                             let reader = new FileReader();
-                            reader.onloadend = function (e) {
+                            reader.onloadend = () => {
                                 let content = reader.result;
 
                                 console.log("Starting Activity ...");
                                 CmisSession.getSession().createDocument(folderId, content, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
                                     console.log("In Promise...!!!!");
-
                                     // ------
-                                    CmisSession.getSession().getChildren(folderId).then((newData) => {
+                                    CmisSession.getSession().getChildren(folderId).then((data) => {
                                         console.log("Getting children ...");
-                                        let cmisObjects: any[] = newData.objects;
-                                        let tmpData: any[] = new Array(newData.objects.length);
+                                        let cmisObjects: any[] = data.objects;
+                                        let tmpData: any[] = new Array(data.objects.length);
                                         for (let i = 0; i < cmisObjects.length; i++) {
                                             // console.log(i + " ----------------------------------");
                                             let tmp: any = {};
@@ -116,39 +115,38 @@ export default class FolderPage extends Page {
                                             console.log("contentStreamLength: " + tmpData[i].cmisContentStreamLength);
                                         }
                                         console.log("Storing data ...");
-                                        console.log("this.data.length: " + this.data.length);
 
-                                        if (this.data.length < tmpData.length) {
+                                        // calculate position of new element and insert it in collection view 
+                                        if (this.collectionViewData.length < tmpData.length) {
                                             console.log("One item seems to be added ...");
                                             let j = 0;
-                                            for (j = 0; j < this.data.length; j++) {
-                                                if (this.data[j].cmisObjectId != tmpData[j].cmisObjectId) {
+                                            for (j = 0; j < this.collectionViewData.length; j++) {
+                                                if (this.collectionViewData[j].cmisObjectId != tmpData[j].cmisObjectId) {
                                                     break;
                                                 }
-                                            } 
-                                            this.data = tmpData;
+                                            }
+                                            this.collectionViewData = tmpData;
 
                                             console.log("Refreshing collection view ...");
                                             this.collectionView.insert(j);
-                                            // this.collectionView.itemCount = this.data.length;
-                                            // this.collectionView.refresh();
                                         } else {
-                                            console.log("this.data.length: " + this.data.length);
+                                            console.log("this.collectionViewData.length: " + this.collectionViewData.length);
                                             console.log("tmpData.length: " + tmpData.length);
                                         }
+
+                                        console.log("this.collectionViewData.length: " + this.collectionViewData.length);
                                         console.log("Stopping activity ...");
-                                        
+
                                         // ----- 
-                                        // colView.refresh();
-                                    activityUpload.stopActivity();
+                                        activityUpload.stopActivity();
                                     });
                                     // ------
-
 
                                 }).catch((err) => {
 
                                     console.log("In Catch Promise...!!!!");
                                     console.log("Err: " + JSON.stringify(err));
+
                                     activityUpload.stopActivity();
                                 });
                                 console.log("After create Doc ...");
@@ -174,16 +172,16 @@ export default class FolderPage extends Page {
         });
     }
 
-    private createContentCollectionView(data: any[]) {
+    private createContentCollectionView() {
         let navigationView = this.navigationView;
-        let myData = this.data;
+        // let myData = this.data;
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
-            itemCount: this.data.length,
+            itemCount: this.collectionViewData.length,
             updateCell: (cell, index) => {
                 console.log("In updateCell at index: " + index);
-                let item = myData[index];
+                let item = this.collectionViewData[index];
                 if (item.cmisBaseTypeId == 'cmis:document') {
                     cell.apply({
                         '#icon': { 'image': 'icons/document.png' }
@@ -219,7 +217,7 @@ export default class FolderPage extends Page {
             createCell: this.createCell,
             // itemHeight: device.platform === 'iOS' ? 60 : 68
         }).on('select', ({ index }) => {
-            let item = myData[index];
+            let item = this.collectionViewData[index];
             console.log("In Select EventHandler ... index: " + index);
             console.log("Item selected: " + JSON.stringify(item));
             console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
@@ -302,8 +300,6 @@ export default class FolderPage extends Page {
     }
 
     private openContent(fileId: string, fileName: string): void {
-        // Need to reassign cause we can not use 'this' keyword in callbacks to fileTransfer
-        // TODO: Check if doing sth. like this is ok
         let activityDownload = new Activity(this.collectionView);
 
         let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
