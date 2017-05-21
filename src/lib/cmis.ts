@@ -528,13 +528,13 @@ export namespace cmis {
             urlOptions.cmisaction = 'createDocument';
 
             let response = this.postMultipartForm(this.defaultRepository.rootFolderUrl,
-                content, properties, urlOptions).then(res => {
+                content, properties, urlOptions).catch(res => {
                     console.log("RESPONSE STATUS: " + res);
-                    if (res.status < 200 || res.status > 299) {
+                    // if (res.status < 200 || res.status > 299) {
                         console.log("Creating new HTTPError ....")
-                        throw new HTTPError(res);
-                    }
-                    return res;
+                        throw new Error(res);
+                    // }
+                    // return res;
                 });
 
             if (this.errorHandler) {
@@ -649,11 +649,11 @@ export namespace cmis {
             let promise = new Promise(
                 function (resolve, reject) {
                     http.onload = function (e) {
-                        // if (http.readyState === 4 && http.status >= 200 && http.status <= 299) {
+                        if (http.readyState === 4 && http.status >= 200 && http.status <= 299) {
                             resolve(http.response); // fulfilled
-                        // } else {
-                            // reject(http.response); // reject
-                        // }
+                        } else {
+                            reject(http.response); // reject
+                        }
                     }
                 });
             // console.log("FINSIHED onload");
