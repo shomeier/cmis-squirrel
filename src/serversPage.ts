@@ -1,5 +1,5 @@
 import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, Widget, device, ui } from 'tabris';
-import { CmisSession, CmisRepository } from './cmisSession'
+import { CmisSession, CmisSettings} from './cmisSession'
 import RepositoriesPage from './repositoriesPage';
 import FolderPage from './folderPage';
 import ErrorMessage from './error';
@@ -33,7 +33,7 @@ export default class ServersPage extends Page {
         }).on('select', () => {
             console.log('Connection to server ...');
 
-            CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
+            CmisSession.init(this.getSettings()).then(() => {
                 let repos = this.getRepositories()
                 if (repos.length > 1) {
                     // open repositories page if the server has more than one repo
@@ -44,10 +44,6 @@ export default class ServersPage extends Page {
                     }).appendTo(this.navigationView);
 
                 } else {
-                    // if server has only one repo just open the root folder
-                    activityConnect.startActivity();
-                    CmisSession.init(this.repoUrl.text, this.repoUser.text, this.repoPassword.text).then(() => {
-                        activityConnect.stopActivity();
                         let session = CmisSession.getSession();
                         console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
                         let rootFolderId = session.defaultRepository.rootFolderId;
@@ -55,7 +51,6 @@ export default class ServersPage extends Page {
                             {
                                 title: '/'
                             });
-                    }).catch((err) => { console.log(err) })
                 }
             }).catch((initErr) => {
                 console.log('initErr: ' + JSON.stringify(initErr.response));
@@ -108,5 +103,9 @@ export default class ServersPage extends Page {
     private getRepositories(): string[] {
         let session = CmisSession.getSession();
         return Object.keys(session.repositories);
+    }
+
+    private getSettings():CmisSettings {
+        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':'cmis:document'};
     }
 }

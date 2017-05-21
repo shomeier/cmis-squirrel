@@ -1,5 +1,5 @@
 import { ActivityIndicator, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
-import { CmisSession, CmisRepository } from './cmisSession'
+import { CmisSession } from './cmisSession'
 const roundTo = require('round-to');
 declare var cordova: any;
 

@@ -1,33 +1,30 @@
 import { cmis } from './lib/cmis';
 import ErrorMessage from './error';
 
+export interface CmisSettings {
+    url, user, password, uploadType: string;
+}
 export class CmisSession {
 
     private static _initialized: boolean = false;
 
     private static _session: cmis.CmisSession = null;
 
-    public static init(url: string, user: string, password: string): Promise<void> {
+    public static init(settings: CmisSettings): Promise<void> {
 
+        console.log("Initializing CMIS Session with url: " + settings.url
+            + ", user: " + settings.user
+            + ', password: ' + settings.password
+            + ', uploadType: ' + settings.uploadType);
+        CmisSession._session = new cmis.CmisSession(settings.url);
+        CmisSession._session.setErrorHandler((err) => {
+            new ErrorMessage(err);
+        });
 
-        console.log("Initializing CMIS Session with url: " + url + ", user: " + user + ', password: ' + password);
-        CmisSession._session = new cmis.CmisSession(url);
-        // if (err) {
-            CmisSession._session.setErrorHandler((err) => {
-                    new ErrorMessage(err);
-            });
-        // }
-
-        return CmisSession._session.setCredentials(user, password).loadRepositories().then(() => {
+        return CmisSession._session.setCredentials(settings.user, settings.password).loadRepositories().then(() => {
             console.log('CMIS Session initialized');
             CmisSession._initialized = true;
-            // cb();
         });
-        // } else {
-
-        // just call the callback if we already initialized the session
-        // cb()
-        // }
     }
 
     public static getSession(): cmis.CmisSession {
@@ -37,12 +34,4 @@ export class CmisSession {
             return CmisSession._session;
         }
     }
-}
-
-export interface CmisRepository {
-    name: string;
-    url: string;
-    user: string;
-    password: string;
-
 }

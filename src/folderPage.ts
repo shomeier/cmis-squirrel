@@ -1,5 +1,5 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
-import { CmisSession, CmisRepository } from './cmisSession'
+import { CmisSession } from './cmisSession'
 import Activity from './activity';
 import Base64 from './lib/base64';
 const roundTo = require('round-to');
