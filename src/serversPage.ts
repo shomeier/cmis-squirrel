@@ -37,6 +37,7 @@ export default class ServersPage extends Page {
 
             let settings = this.getSettings();
             this.storeSettings(settings);
+            activityConnect.startActivity();
             CmisSession.init(settings).then(() => {
                 let repos = this.getRepositories()
                 if (repos.length > 1) {
@@ -56,8 +57,10 @@ export default class ServersPage extends Page {
                                 title: '/'
                             });
                 }
+                activityConnect.stopActivity();
             }).catch((initErr) => {
                 console.log('initErr: ' + JSON.stringify(initErr.response));
+                activityConnect.stopActivity();
             });
 
         }).appendTo(this);
