@@ -5,6 +5,8 @@ import FolderPage from './folderPage';
 import ErrorMessage from './error';
 import Activity from './activity';
 
+declare var secureStorage: Storage;
+
 export default class ServersPage extends Page {
 
     private button: Button;
@@ -14,7 +16,7 @@ export default class ServersPage extends Page {
     private repoUrl: TextInput;
     private repoUser: TextInput;
     private repoPassword: TextInput;
-    private repoPicker: Picker;
+    private repoUploadType: TextInput;
 
     private navigationView: NavigationView;
 
@@ -33,7 +35,9 @@ export default class ServersPage extends Page {
         }).on('select', () => {
             console.log('Connection to server ...');
 
-            CmisSession.init(this.getSettings()).then(() => {
+            let settings = this.getSettings();
+            this.storeSettings(settings);
+            CmisSession.init(settings).then(() => {
                 let repos = this.getRepositories()
                 if (repos.length > 1) {
                     // open repositories page if the server has more than one repo
@@ -74,27 +78,53 @@ export default class ServersPage extends Page {
             id: 'inputForm',
             background: '#f3f4e4'
         }).appendTo(this);
+        new TextView({
+            id: 'repoUrlLabel',
+            text: 'CMIS Browser-Binding URL:'
+        }).appendTo(widget);
         this.repoUrl = new TextInput({
-            left: 0, right: 0, top: ["#repoName", 10],
+            left: 0, right: 0, top: ["#repoUrlLabel", 1],
             id: 'repoUrl',
-            message: 'URL of the CMIS repository ...',
-            text: 'http://192.168.1.110:8083/cmisBrowser'
+            // message: 'CMIS Browser-Binding URL ...',
+            text: localStorage.getItem('url') || ''
+            // text: 'http://192.168.1.110:8083/cmisBrowser'
             // text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
         }).appendTo(widget);
+        new TextView({
+            top: ['#repoUrl', 5],
+            id: 'repoUserLabel',
+            text: 'Username:'
+        }).appendTo(widget);
         this.repoUser = new TextInput({
-            left: 0, right: 0, top: ["#repoUrl", 10],
+            left: 0, right: 0, top: ["#repoUserLabel", 1],
             id: 'repoUser',
-            message: 'Username ...',
-            text: 'test'
+            // message: 'Username ...',
+            text: localStorage.getItem('user') || ''
             // text: 'admin'
         }).appendTo(widget);
+        new TextView({
+            top: ['#repoUser', 5],
+            id: 'repoPasswordLabel',
+            text: 'Password:'
+        }).appendTo(widget);
         this.repoPassword = new TextInput({
-            left: 0, right: 0, top: ["#repoUser", 10],
+            left: 0, right: 0, top: ["#repoPasswordLabel", 1],
             type: 'password',
             id: 'repoPassword',
-            message: 'Password ...',
-            text: 'test'
+            // message: 'Password ...',
+            text: secureStorage.getItem('password') || ''
             // text: 'admin'
+        }).appendTo(widget);
+        new TextView({
+            top: ['#repoPassword', 5],
+            id: 'repoUploadType',
+            text: "Type ID of uploaded images (default 'cmis:document'):"
+        }).appendTo(widget);
+        this.repoUploadType = new TextInput({
+            left: 0, right: 0, top: ["#repoUploadType", 1],
+            id: 'repoUploadType',
+            // message: "Type ID of uploaded images (defaults to 'cmis:document') ...",
+            text: localStorage.getItem('uploadType') || 'cmis:document'
         }).appendTo(widget);
 
         return widget;
@@ -107,5 +137,12 @@ export default class ServersPage extends Page {
 
     private getSettings():CmisSettings {
         return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':'cmis:document'};
+    }
+
+    private storeSettings(settings:CmisSettings) {
+        localStorage.setItem('url', settings.url);
+        localStorage.setItem('user', settings.user);
+        secureStorage.setItem('password', settings.password);
+        localStorage.setItem('uploadType', settings.uploadType);
     }
 }

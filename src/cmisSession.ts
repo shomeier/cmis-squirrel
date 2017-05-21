@@ -10,12 +10,15 @@ export class CmisSession {
 
     private static _session: cmis.CmisSession = null;
 
+    private static _settings: CmisSettings;
+
     public static init(settings: CmisSettings): Promise<void> {
 
         console.log("Initializing CMIS Session with url: " + settings.url
             + ", user: " + settings.user
             + ', password: ' + settings.password
             + ', uploadType: ' + settings.uploadType);
+        CmisSession._settings = settings;
         CmisSession._session = new cmis.CmisSession(settings.url);
         CmisSession._session.setErrorHandler((err) => {
             new ErrorMessage(err);
