@@ -75,7 +75,9 @@ export default class FolderPage extends Page {
 
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY
+                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
+                    // encoding type PNG seems to be important to render previews on apollon OMN DAM system
+                    'encodingType': Camera.EncodingType.PNG
                     // 'quality': 10
                 };
 
