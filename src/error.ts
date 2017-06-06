@@ -5,29 +5,21 @@ export default class ErrorMessage {
 
     constructor(error: Error) {
 
-        console.log('In ErrorMessage: ' + JSON.stringify(error));
         this.disableWidgets();
-        console.log('After disabling widgets...');
         let errorName: string = error.name;
         let errorMessage: string = error.message;
-        console.log("errorName: " + errorName);
-        console.log("errorMessage: " + errorMessage);
 
         if (errorMessage.startsWith('{') && errorMessage.endsWith('}')) {
             // The error can contain of an 'exception' and 'message' part 
             let parsedMsg = JSON.parse(error.message);
-            console.log("Parsed Message: " + parsedMsg);
             if (parsedMsg) {
                 errorName = parsedMsg.exception;
                 errorMessage = parsedMsg.message;
             }
         }
-        console.log("errorName: " + errorName);
-        console.log("errorMessage: " + errorMessage);
 
         let composite = new Composite({
             left: 20, right: 20, centerY: 0,
-            // width: 200, height: 75,
             background: '#3b283e'
         }).appendTo(ui.contentView);
         let captionText = new TextView({

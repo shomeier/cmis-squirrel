@@ -37,7 +37,6 @@ export default class FolderPage extends Page {
             let cmisObjects: any[] = data.objects;
             let tmpData: any[] = new Array(data.objects.length);
             for (var i = 0; i < cmisObjects.length; i++) {
-                // console.log(i + " ----------------------------------");
                 let tmp: any = {};
                 tmp.cmisObjectId = cmisObjects[i].object.properties['cmis:objectId'].value;
                 tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
@@ -46,10 +45,6 @@ export default class FolderPage extends Page {
                     tmp.cmisContentStreamLength = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
                 }
                 tmpData[i] = tmp;
-                // console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
-                // console.log("cmisName: " + tmpData[i].cmisName);
-                // console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
-                // console.log("contentStreamLength: " + tmpData[i].cmisContentStreamFileSize);
             }
             this.collectionViewData = tmpData;
             this.collectionView = this.createContentCollectionView();
@@ -71,7 +66,6 @@ export default class FolderPage extends Page {
             }).on('select', () => {
                 let activityUpload = new Activity(this.navigationView);
                 activityUpload.startActivity();
-                console.log('Upload button pressed ...');
 
                 let options = {
                     'destinationType': Camera.DestinationType.FILE_URI,
@@ -82,8 +76,6 @@ export default class FolderPage extends Page {
                 };
 
                 navigator.camera.getPicture((imageData) => {
-                    console.log('Camera Success ...');
-                    console.log('Camera Success Image Data: ' + JSON.stringify(imageData));
 
                     let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
 
@@ -93,16 +85,21 @@ export default class FolderPage extends Page {
                             reader.onloadend = () => {
                                 let content = reader.result;
 
-                                console.log("Starting Activity ...");
-                                CmisSession.getSession().createDocument(folderId, content, { 'cmis:name': fileName, 'cmis:objectTypeId': 'cmis:document' }).then(() => {
-                                    console.log("In Promise...!!!!");
-                                    // ------
+                                let url = localStorage.getItem('url');
+                                console.log("url: " + url);
+                                let type = localStorage.getItem('uploadType');
+                                console.log("uploadType: " + type);
+                                if (!type) {
+                                    console.log("Upload type is not set ...");
+                                    type = 'cmis:document';
+                                }
+                                console.log("Using type: " + type);
+                                CmisSession.getSession().createDocument(folderId, content, { 'cmis:name': fileName, 'cmis:objectTypeId': type }).then(() => {
                                     CmisSession.getSession().getChildren(folderId).then((data) => {
                                         console.log("Getting children ...");
                                         let cmisObjects: any[] = data.objects;
                                         let tmpData: any[] = new Array(data.objects.length);
                                         for (let i = 0; i < cmisObjects.length; i++) {
-                                            // console.log(i + " ----------------------------------");
                                             let tmp: any = {};
                                             tmp.cmisObjectId = cmisObjects[i].object.properties['cmis:objectId'].value;
                                             tmp.cmisName = cmisObjects[i].object.properties['cmis:name'].value;
@@ -111,16 +108,10 @@ export default class FolderPage extends Page {
                                                 tmp.cmisContentStreamLength = cmisObjects[i].object.properties['cmis:contentStreamLength'].value;
                                             }
                                             tmpData[i] = tmp;
-                                            console.log("cmisObjectId: " + tmpData[i].cmisObjectId);
-                                            console.log("cmisName: " + tmpData[i].cmisName);
-                                            console.log("cmisBaseTypeId: " + tmpData[i].cmisBaseTypeId);
-                                            console.log("contentStreamLength: " + tmpData[i].cmisContentStreamLength);
                                         }
-                                        console.log("Storing data ...");
 
                                         // calculate position of new element and insert it in collection view 
                                         if (this.collectionViewData.length < tmpData.length) {
-                                            console.log("One item seems to be added ...");
                                             let j = 0;
                                             for (j = 0; j < this.collectionViewData.length; j++) {
                                                 if (this.collectionViewData[j].cmisObjectId != tmpData[j].cmisObjectId) {
@@ -129,20 +120,14 @@ export default class FolderPage extends Page {
                                             }
                                             this.collectionViewData = tmpData;
 
-                                            console.log("Refreshing collection view ...");
                                             this.collectionView.insert(j);
                                         } else {
-                                            console.log("this.collectionViewData.length: " + this.collectionViewData.length);
+                                            console.log("HOUSTON .... this.collectionViewData.length: " + this.collectionViewData.length);
                                             console.log("tmpData.length: " + tmpData.length);
                                         }
 
-                                        console.log("this.collectionViewData.length: " + this.collectionViewData.length);
-                                        console.log("Stopping activity ...");
-
-                                        // ----- 
                                         activityUpload.stopActivity();
                                     });
-                                    // ------
 
                                 }).catch((err) => {
 
@@ -151,7 +136,6 @@ export default class FolderPage extends Page {
 
                                     activityUpload.stopActivity();
                                 });
-                                console.log("After create Doc ...");
                             }
 
                             reader.readAsArrayBuffer(file);
@@ -176,13 +160,11 @@ export default class FolderPage extends Page {
 
     private createContentCollectionView() {
         let navigationView = this.navigationView;
-        // let myData = this.data;
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
             itemCount: this.collectionViewData.length,
             updateCell: (cell, index) => {
-                console.log("In updateCell at index: " + index);
                 let item = this.collectionViewData[index];
                 if (item.cmisBaseTypeId == 'cmis:document') {
                     cell.apply({
@@ -226,10 +208,6 @@ export default class FolderPage extends Page {
             // itemHeight: device.platform === 'iOS' ? 60 : 68
         }).on('select', ({ index }) => {
             let item = this.collectionViewData[index];
-            console.log("In Select EventHandler ... index: " + index);
-            console.log("Item selected: " + JSON.stringify(item));
-            console.log("cmisObjectId: " + JSON.stringify(item.cmisObjectId));
-            console.log("Creating sub content page ...");
             if (item.cmisBaseTypeId == 'cmis:folder') {
                 let folderPage = new FolderPage(item.cmisObjectId, this.navigationView,
                     {
@@ -239,16 +217,6 @@ export default class FolderPage extends Page {
                 // TODO: Check if document has content stream
                 this.openContent(item.cmisObjectId, item.cmisName);
             }
-            console.log("Created sub content page ...");
-        }).on('longpress', function ({ target }) {
-            console.log("LONGPRESS ON SELECTION VIEW !!!!!!");
-            console.log("ITEM: " + JSON.stringify(target.item));
-            // TODO: Open another page with metdata/properties here
-            // Currently does not work propely: 'select' event interferes with 'longpress' somehow
-            // new PropertisPage(target.item.cmisObjectId, navigationView,
-            //     {
-            //         title: target.item.cmisName
-            //     });
         });
     }
 
@@ -312,17 +280,16 @@ export default class FolderPage extends Page {
 
         let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
+        // TODO: This is iOS specific, make generic for Android and Windows
         let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
-        console.log('TARGET: ' + target);
         activityDownload.startActivity();
         fileTransfer.download(
             url,
             target,
             function (entry) {
                 activityDownload.stopActivity();
-                console.log("download complete: " + decodeURIComponent(entry.toURL()));
                 cordova.plugins.fileOpener2.open(decodeURIComponent(entry.toURL()), decodeURIComponent(fileName), (data) => {
-                    console.log("CALLBACK CALLLED !!!!!");
+                    console.log("FileOpener SUCCESS CALLBACK CALLLED !!!!!");
                     console.log("data fileOpener CB: " + JSON.stringify(data));
                 });
             },

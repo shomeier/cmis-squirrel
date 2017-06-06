@@ -23,7 +23,6 @@ export default class RepositoriesPage extends Page {
     private createContentCollectionView() {
         let navigationView = this.navigationView;
         let myRepos = this.repositories;
-        console.log("this.repositories.length: " + this.repositories.length);
         return new CollectionView({
             left: 0, top: 0, right: 0, bottom: 62,
             id: 'contentCollectionView',
@@ -33,19 +32,13 @@ export default class RepositoriesPage extends Page {
             createCell: this.createCell,
         }).on('select', ({ index }) => {
             let item = this.repositories[index];
-            console.log("In Select EventHandler ... index: " + index);
-            console.log("Item selected: " + JSON.stringify(item));
-            console.log("Creating sub content page ...");
             let session = CmisSession.getSession();
-            console.log("Session repos: " + JSON.stringify(session.repositories[item]));
-            console.log("Default repo: " + JSON.stringify(session.defaultRepository ));
             session.defaultRepository = session.repositories[item];
             let rootFolderId = session.repositories[item].rootFolderId
                 let folderPage = new FolderPage(rootFolderId, this.navigationView,
                     {
                         title: '/'
                     });
-            console.log("Created sub content page ...");
         });
     }
 
@@ -74,7 +67,6 @@ export default class RepositoriesPage extends Page {
 
     private updateCell(cell, index) {
         let repositories = Object.keys(CmisSession.getSession().repositories);
-        console.log("In updateCell at index: " + index);
         let item = repositories[index];
         cell.apply({
             '#icon': { 'image': 'icons/acorn.png' },

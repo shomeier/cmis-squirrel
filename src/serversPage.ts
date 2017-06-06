@@ -88,9 +88,7 @@ export default class ServersPage extends Page {
         this.repoUrl = new TextInput({
             left: 0, right: 0, top: ["#repoUrlLabel", 1],
             id: 'repoUrl',
-            // message: 'CMIS Browser-Binding URL ...',
             text: localStorage.getItem('url') || ''
-            // text: 'http://192.168.1.110:8083/cmisBrowser'
             // text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
         }).appendTo(widget);
         new TextView({
@@ -101,9 +99,7 @@ export default class ServersPage extends Page {
         this.repoUser = new TextInput({
             left: 0, right: 0, top: ["#repoUserLabel", 1],
             id: 'repoUser',
-            // message: 'Username ...',
             text: localStorage.getItem('user') || ''
-            // text: 'admin'
         }).appendTo(widget);
         new TextView({
             top: ['#repoUser', 5],
@@ -114,9 +110,7 @@ export default class ServersPage extends Page {
             left: 0, right: 0, top: ["#repoPasswordLabel", 1],
             type: 'password',
             id: 'repoPassword',
-            // message: 'Password ...',
             text: secureStorage.getItem('password') || ''
-            // text: 'admin'
         }).appendTo(widget);
         new TextView({
             top: ['#repoPassword', 5],
@@ -126,7 +120,6 @@ export default class ServersPage extends Page {
         this.repoUploadType = new TextInput({
             left: 0, right: 0, top: ["#repoUploadType", 1],
             id: 'repoUploadType',
-            // message: "Type ID of uploaded images (defaults to 'cmis:document') ...",
             text: localStorage.getItem('uploadType') || 'cmis:document'
         }).appendTo(widget);
 
@@ -139,7 +132,7 @@ export default class ServersPage extends Page {
     }
 
     private getSettings():CmisSettings {
-        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':'cmis:document'};
+        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':this.repoUploadType.text};
     }
 
     private storeSettings(settings:CmisSettings) {
