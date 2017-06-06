@@ -31,6 +31,7 @@ export default class ServersPage extends Page {
             bottom: 10, centerX: 0,
             background: '#3b283e',
             textColor: '#f3f4e4',
+            id: 'connectButton',
             text: 'Connect to Server'
         }).on('select', () => {
             console.log('Connection to server ...');
@@ -69,7 +70,7 @@ export default class ServersPage extends Page {
 
     private createLogo(): ImageView {
         return new ImageView({
-            top: 50, centerX: 0,
+            top: 40, centerX: 0,
             id: 'logo',
             image: 'icons/squirrel_200.png'
         }).appendTo(this);
@@ -77,7 +78,7 @@ export default class ServersPage extends Page {
 
     private createInputForm(): Widget {
         let widget = new Composite({
-            left: 20, right: 20, top: ["#logo", 50],
+            left: 20, right: 20, bottom: ["#connectButton", 30],
             id: 'inputForm',
             background: '#f3f4e4'
         }).appendTo(this);
@@ -85,43 +86,25 @@ export default class ServersPage extends Page {
             id: 'repoUrlLabel',
             text: 'CMIS Browser-Binding URL:'
         }).appendTo(widget);
-        this.repoUrl = new TextInput({
-            left: 0, right: 0, top: ["#repoUrlLabel", 1],
-            id: 'repoUrl',
-            text: localStorage.getItem('url') || ''
-            // text: 'https://cmis.alfresco.com/alfresco/api/-default-/public/cmis/versions/1.1/browser'
-        }).appendTo(widget);
+        this.repoUrl = this.createTextInput(widget, 'repoUrl', 'repoUrlLabel', 'url');
         new TextView({
             top: ['#repoUrl', 5],
             id: 'repoUserLabel',
             text: 'Username:'
         }).appendTo(widget);
-        this.repoUser = new TextInput({
-            left: 0, right: 0, top: ["#repoUserLabel", 1],
-            id: 'repoUser',
-            text: localStorage.getItem('user') || ''
-        }).appendTo(widget);
+        this.repoUser = this.createTextInput(widget, 'repoUser', 'repoUserLabel', 'user');
         new TextView({
             top: ['#repoUser', 5],
             id: 'repoPasswordLabel',
             text: 'Password:'
         }).appendTo(widget);
-        this.repoPassword = new TextInput({
-            left: 0, right: 0, top: ["#repoPasswordLabel", 1],
-            type: 'password',
-            id: 'repoPassword',
-            text: secureStorage.getItem('password') || ''
-        }).appendTo(widget);
+        this.repoPassword = this.createTextInput(widget, 'repoPassword', 'repoPasswordLabel', 'password');
         new TextView({
             top: ['#repoPassword', 5],
-            id: 'repoUploadType',
+            id: 'repoUploadTypeLabel',
             text: "Type ID of uploaded images (default 'cmis:document'):"
         }).appendTo(widget);
-        this.repoUploadType = new TextInput({
-            left: 0, right: 0, top: ["#repoUploadType", 1],
-            id: 'repoUploadType',
-            text: localStorage.getItem('uploadType') || 'cmis:document'
-        }).appendTo(widget);
+        this.repoUploadType = this.createTextInput(widget, 'repoUploadType', 'repoUploadTypeLabel', 'uploadType');
 
         return widget;
     }
@@ -135,10 +118,30 @@ export default class ServersPage extends Page {
         return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':this.repoUploadType.text};
     }
 
-    private storeSettings(settings:CmisSettings) {
+    private storeSettings(settings:CmisSettings):void {
         localStorage.setItem('url', settings.url);
         localStorage.setItem('user', settings.user);
         secureStorage.setItem('password', settings.password);
         localStorage.setItem('uploadType', settings.uploadType);
+    }
+
+    private disableLogo():void {
+        this.imageView.enabled = false;
+    }
+    
+    private enableLogo():void {
+        this.imageView.enabled = true;
+    }
+
+    private createTextInput(parent:Composite, id, topId, itemKey:string):TextInput {
+        return new TextInput({
+            left: 0, right: 0, top: ['#' + topId, 1],
+            id: id,
+            text: localStorage.getItem(itemKey) || 'cmis:document'
+        }).on('focus', () => {
+            this.disableLogo();
+        }).on('blur', () => {
+            this.enableLogo();
+        }).appendTo(parent);
     }
 }
