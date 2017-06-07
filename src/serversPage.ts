@@ -1,4 +1,4 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, Widget, device, ui } from 'tabris';
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, ToggleButton, Widget, device, ui } from 'tabris';
 import { CmisSession, CmisSettings} from './cmisSession'
 import RepositoriesPage from './repositoriesPage';
 import FolderPage from './folderPage';
@@ -17,6 +17,7 @@ export default class ServersPage extends Page {
     private repoUser: TextInput;
     private repoPassword: TextInput;
     private repoUploadType: TextInput;
+    private repoUploadFormat: ToggleButton;
     private repoUploadQuality: TextInput;
 
     private navigationView: NavigationView;
@@ -105,6 +106,12 @@ export default class ServersPage extends Page {
             text: "Type ID of uploaded images:"
         }).appendTo(widget);
         this.repoUploadType = this.createTextInput(widget, 'repoUploadType', 'repoUploadTypeLabel', 'uploadType', 'cmis:document');
+        // new TextView({
+        //     top: ['#repoUploadType', 5],
+        //     id: 'repoUploadFormatLabel',
+        //     text: "Upload format:"
+        // }).appendTo(widget);
+        // this.repoUploadFormat = createToggleButton(widget, 'repoUploadFormat', 'repoUploadFormatLabel', 'uploadFormat', );
         new TextView({
             top: ['#repoUploadType', 5],
             id: 'repoUploadQualityLabel',
@@ -141,11 +148,39 @@ export default class ServersPage extends Page {
     }
 
     private createTextInput(parent:Composite, id, topId, itemKey, dflt:string):TextInput {
+        let store = localStorage.getItem(itemKey) || dflt;
+        if (itemKey == 'password') {
+            store = secureStorage.getItem(itemKey) || dflt;
+        }
         return new TextInput({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
-            text: localStorage.getItem(itemKey) || dflt
+            text: store
         }).on('focus', () => {
+            this.disableLogo();
+        }).on('blur', () => {
+            this.enableLogo();
+        }).appendTo(parent);
+    }
+    
+    private createToggleButton(parent:Composite, id, topId, itemKey, dflt:string):ToggleButton {
+        // let localStorage.getItem(itemKey) ;
+        return new ToggleButton({
+            left: 0, right: 0, top: ['#' + topId, 1],
+            id: id,
+            checked: (localStorage.getItem(itemKey) == 'JPEG'),
+            text: localStorage.getItem(itemKey) || 'JPEG'
+        }).on('checkedChange', ({target, value}) => {
+            if (value) {
+                target.text = 'JPEG';
+
+            } else {
+                target.text = 'PNG';
+                // no quality scaling on PNGs
+                this.repoUploadQuality.enabled = false;
+            }
+        })
+        .on('focus', () => {
             this.disableLogo();
         }).on('blur', () => {
             this.enableLogo();

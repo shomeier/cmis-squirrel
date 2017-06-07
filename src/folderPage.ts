@@ -74,14 +74,14 @@ export default class FolderPage extends Page {
                 let options = {
                     'quality': 5,
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    // 'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
-                    'sourceType': Camera.PictureSourceType.CAMERA,
+                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
+                    // 'sourceType': Camera.PictureSourceType.CAMERA,
                     // with encoding type JPG 
-                    // 'encodingType': Camera.EncodingType.PNG
-                    'encodingType': Camera.EncodingType.JPEG,
-                    allowEdit : true,
-                    targetWidth: 100,
-                    targetHeight: 100,
+                    'encodingType': Camera.EncodingType.PNG,
+                    // 'encodingType': Camera.EncodingType.JPEG,
+                    allowEdit : false,
+                    // targetWidth: 100,
+                    // targetHeight: 100,
                     correctOrientation: true
                 };
 
