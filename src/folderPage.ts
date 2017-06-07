@@ -2,7 +2,6 @@ import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProper
 import { CmisSession } from './cmisSession'
 import Activity from './activity';
 import Base64 from './lib/base64';
-const roundTo = require('round-to');
 declare var navigator: any;
 declare var FileTransfer: any;
 declare var FileUploadOptions: any;
@@ -11,6 +10,7 @@ declare var Camera: any;
 declare var global: any;
 declare var FileReader: any;
 declare var window: any;
+import roundTo from 'round-to';
 
 export default class FolderPage extends Page {
 
