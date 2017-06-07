@@ -8,11 +8,8 @@
     Sascha Homeier
   </author>
   <preference name="EnableDeveloperConsole" value="true"/>
-  <preference name="CameraUsesGeolocation" value="true" />
-  <!--
+  <preference name="CameraUsesGeolocation" value="false" />
   <plugin name="cordova-plugin-camera" spec="^2.4.1" />
-  -->
-  <plugin name="cordova-plugin-camera-with-exif" spec="^1.2.2" />
   <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
   <plugin name="cordova-plugin-file-opener2" spec="^2.0.15" />
 </widget>

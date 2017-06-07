@@ -78,7 +78,7 @@ export default class FolderPage extends Page {
                     'sourceType': Camera.PictureSourceType.CAMERA,
                     // with encoding type JPG 
                     // 'encodingType': Camera.EncodingType.PNG
-                    'encodingType': Camera.EncodingType.JPG,
+                    'encodingType': Camera.EncodingType.JPEG,
                     allowEdit : true,
                     targetWidth: 100,
                     targetHeight: 100,
