@@ -72,7 +72,7 @@ export default class ServersPage extends Page {
         return new ImageView({
             top: 40, centerX: 0,
             id: 'logo',
-            image: 'icons/squirrel_200.png'
+            image: 'icons/squirrel-200.png'
         }).appendTo(this);
     }
 
