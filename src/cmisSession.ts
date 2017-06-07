@@ -2,7 +2,7 @@ import { cmis } from './lib/cmis';
 import ErrorMessage from './error';
 
 export interface CmisSettings {
-    url, user, password, uploadType: string;
+    url, user, password, uploadType, uploadQuality: string;
 }
 export class CmisSession {
 

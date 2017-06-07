@@ -10,7 +10,8 @@ declare var Camera: any;
 declare var global: any;
 declare var FileReader: any;
 declare var window: any;
-import roundTo from 'round-to';
+declare var require: any;
+import roundTo = require('round-to');
 
 export default class FolderPage extends Page {
 
@@ -67,12 +68,21 @@ export default class FolderPage extends Page {
                 let activityUpload = new Activity(this.navigationView);
                 activityUpload.startActivity();
 
+                let quality:any = localStorage.getItem('uploadQuality');
+                quality = quality || 50;
+                console.log("Uploading with quality: " + quality);
                 let options = {
+                    'quality': 5,
                     'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
-                    // encoding type PNG seems to be important to render previews on apollon OMN DAM system
-                    'encodingType': Camera.EncodingType.PNG
-                    // 'quality': 10
+                    // 'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
+                    'sourceType': Camera.PictureSourceType.CAMERA,
+                    // with encoding type JPG 
+                    // 'encodingType': Camera.EncodingType.PNG
+                    'encodingType': Camera.EncodingType.JPG,
+                    allowEdit : true,
+                    targetWidth: 100,
+                    targetHeight: 100,
+                    correctOrientation: true
                 };
 
                 navigator.camera.getPicture((imageData) => {

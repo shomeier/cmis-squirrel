@@ -17,6 +17,7 @@ export default class ServersPage extends Page {
     private repoUser: TextInput;
     private repoPassword: TextInput;
     private repoUploadType: TextInput;
+    private repoUploadQuality: TextInput;
 
     private navigationView: NavigationView;
 
@@ -27,7 +28,6 @@ export default class ServersPage extends Page {
         let inputForm = this.createInputForm();
         let activityConnect = new Activity(inputForm);
         this.button = new Button({
-            // top: ['#inputForm', 10], centerX: 0,
             bottom: 10, centerX: 0,
             background: '#3b283e',
             textColor: '#f3f4e4',
@@ -86,25 +86,31 @@ export default class ServersPage extends Page {
             id: 'repoUrlLabel',
             text: 'CMIS Browser-Binding URL:'
         }).appendTo(widget);
-        this.repoUrl = this.createTextInput(widget, 'repoUrl', 'repoUrlLabel', 'url');
+        this.repoUrl = this.createTextInput(widget, 'repoUrl', 'repoUrlLabel', 'url', '');
         new TextView({
             top: ['#repoUrl', 5],
             id: 'repoUserLabel',
             text: 'Username:'
         }).appendTo(widget);
-        this.repoUser = this.createTextInput(widget, 'repoUser', 'repoUserLabel', 'user');
+        this.repoUser = this.createTextInput(widget, 'repoUser', 'repoUserLabel', 'user', '');
         new TextView({
             top: ['#repoUser', 5],
             id: 'repoPasswordLabel',
             text: 'Password:'
         }).appendTo(widget);
-        this.repoPassword = this.createTextInput(widget, 'repoPassword', 'repoPasswordLabel', 'password');
+        this.repoPassword = this.createTextInput(widget, 'repoPassword', 'repoPasswordLabel', 'password', '');
         new TextView({
             top: ['#repoPassword', 5],
             id: 'repoUploadTypeLabel',
-            text: "Type ID of uploaded images (default 'cmis:document'):"
+            text: "Type ID of uploaded images:"
         }).appendTo(widget);
-        this.repoUploadType = this.createTextInput(widget, 'repoUploadType', 'repoUploadTypeLabel', 'uploadType');
+        this.repoUploadType = this.createTextInput(widget, 'repoUploadType', 'repoUploadTypeLabel', 'uploadType', 'cmis:document');
+        new TextView({
+            top: ['#repoUploadType', 5],
+            id: 'repoUploadQualityLabel',
+            text: "Quality of uploaded images:"
+        }).appendTo(widget);
+        this.repoUploadQuality = this.createTextInput(widget, 'repoUploadQuality', 'repoUploadQualityLabel', 'uploadQuality', '50');
 
         return widget;
     }
@@ -115,7 +121,7 @@ export default class ServersPage extends Page {
     }
 
     private getSettings():CmisSettings {
-        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':this.repoUploadType.text};
+        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':this.repoUploadType.text, 'uploadQuality':this.repoUploadQuality.text};
     }
 
     private storeSettings(settings:CmisSettings):void {
@@ -123,6 +129,7 @@ export default class ServersPage extends Page {
         localStorage.setItem('user', settings.user);
         secureStorage.setItem('password', settings.password);
         localStorage.setItem('uploadType', settings.uploadType);
+        localStorage.setItem('uploadQuality', settings.uploadQuality);
     }
 
     private disableLogo():void {
@@ -133,11 +140,11 @@ export default class ServersPage extends Page {
         this.imageView.enabled = true;
     }
 
-    private createTextInput(parent:Composite, id, topId, itemKey:string):TextInput {
+    private createTextInput(parent:Composite, id, topId, itemKey, dflt:string):TextInput {
         return new TextInput({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
-            text: localStorage.getItem(itemKey) || 'cmis:document'
+            text: localStorage.getItem(itemKey) || dflt
         }).on('focus', () => {
             this.disableLogo();
         }).on('blur', () => {
