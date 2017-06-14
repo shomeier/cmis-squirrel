@@ -7,7 +7,7 @@
     <author email="sascha.homeier@gmail.com">
     Sascha Homeier
   </author>
-  <preference name="EnableDeveloperConsole" value="true"/>
+  <preference name="EnableDeveloperConsole" value="$IS_DEBUG"/>
   <preference name="CameraUsesGeolocation" value="false" />
   <plugin name="cordova-plugin-camera" spec="^2.4.1" />
   <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />

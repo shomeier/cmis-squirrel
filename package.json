@@ -9,7 +9,7 @@
     "start": "tabris serve"
   },
   "dependencies": { 
-    "tabris": "2.0.0-rc1",
+    "tabris": "2.0.0-rc2",
     "tabris-js-node": "^0.1.0",
     "cordova": "^7.0.0",
     "cordova-js": "^4.2.1",
