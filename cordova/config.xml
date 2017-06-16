@@ -9,6 +9,7 @@
   </author>
   <preference name="EnableDeveloperConsole" value="$IS_DEBUG"/>
   <preference name="CameraUsesGeolocation" value="false" />
+  <plugin name="es6-promise-plugin" spec="^4.1.0" />
   <plugin name="cordova-plugin-camera" spec="^2.4.1" />
   <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
   <plugin name="cordova-plugin-file-opener2" spec="^2.0.15" />
