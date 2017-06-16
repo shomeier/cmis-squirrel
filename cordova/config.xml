@@ -7,6 +7,7 @@
     <author email="sascha.homeier@gmail.com">
     Sascha Homeier
   </author>
+  <access origin="*"></access>
   <preference name="EnableDeveloperConsole" value="$IS_DEBUG"/>
   <preference name="CameraUsesGeolocation" value="false" />
   <plugin name="es6-promise-plugin" spec="^4.1.0" />
