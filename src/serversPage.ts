@@ -70,7 +70,7 @@ export default class ServersPage extends Page {
 
     private createLogo(): ImageView {
         return new ImageView({
-            top: 40, centerX: 0,
+            top: 25, centerX: 0,
             id: 'logo',
             image: 'icons/squirrel200.png'
         }).appendTo(this);
