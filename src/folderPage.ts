@@ -1,13 +1,11 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { CmisSession } from './cmisSession'
 import Activity from './activity';
-import Base64 from './lib/base64';
 declare var navigator: any;
 declare var FileTransfer: any;
 declare var FileUploadOptions: any;
 declare var cordova: any;
 declare var Camera: any;
-declare var global: any;
 declare var FileReader: any;
 declare var window: any;
 declare var require: any;
@@ -51,14 +49,6 @@ export default class FolderPage extends Page {
             this.collectionView = this.createContentCollectionView();
             this.collectionView.appendTo(this);
 
-            // We need to set our 'atob' method to global scope for FileReader.readAsArrayBuffer()
-            // See also here: https://github.com/eclipsesource/tabris-js/issues/899
-            if (device.platform === "iOS") {
-                // var base64 = require('base64');
-                // global.btoa = base64.btoa;
-                global.atob = Base64.atob;
-            }
-
             this.button = new Button({
                 top: ['#contentCollectionView', 10], left: 10, right: 10,
                 background: '#3b283e',
@@ -68,26 +58,28 @@ export default class FolderPage extends Page {
                 let activityUpload = new Activity(this.navigationView);
                 activityUpload.startActivity();
 
-                let quality:any = localStorage.getItem('uploadQuality');
-                quality = quality || 50;
-                console.log("Uploading with quality: " + quality);
+                let uploadFormat:string = localStorage.getItem('uploadFormat');
+                console.log("Uploading with format: " + uploadFormat);
                 let options = {
-                    'quality': 5,
-                    'destinationType': Camera.DestinationType.FILE_URI,
-                    'sourceType': Camera.PictureSourceType.PHOTOLIBRARY,
+                    quality: 50,
+                    destinationType: Camera.DestinationType.FILE_URI,
+                    sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
                     // 'sourceType': Camera.PictureSourceType.CAMERA,
-                    // with encoding type JPG 
-                    'encodingType': Camera.EncodingType.PNG,
-                    // 'encodingType': Camera.EncodingType.JPEG,
                     allowEdit : false,
-                    // targetWidth: 100,
-                    // targetHeight: 100,
                     correctOrientation: true
                 };
+                if (uploadFormat == 'PNG'){
+                    options['encodingType'] = Camera.EncodingType.PNG;
+                    options['targetHeight'] = 1000;
+                    options['targetWidth'] = 1000;
+                } else {
+                     options['encodingType'] = Camera.EncodingType.JPEG;
+                }
 
                 navigator.camera.getPicture((imageData) => {
 
-                    let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1);
+                    // let fileName: string = imageData.substr(imageData.lastIndexOf('/') + 1) + new Date();
+                    let fileName: string = "IMG_" + Date.now() + '.' + uploadFormat;
 
                     window.resolveLocalFileSystemURL(imageData, (fileEntry) => {
                         fileEntry.file((file) => {
@@ -290,7 +282,6 @@ export default class FolderPage extends Page {
 
         let url = CmisSession.getSession().defaultRepository.repositoryUrl + '/root?objectId=' + fileId + '&cmisselector=content';
         let fileTransfer = new FileTransfer();
-        // TODO: This is iOS specific, make generic for Android and Windows
         let target = 'cdvfile://localhost/temporary/cmis/' + encodeURIComponent(fileName);
         activityDownload.startActivity();
         fileTransfer.download(

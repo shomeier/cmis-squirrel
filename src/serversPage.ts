@@ -1,5 +1,5 @@
 import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, ToggleButton, Widget, device, ui } from 'tabris';
-import { CmisSession, CmisSettings} from './cmisSession'
+import { CmisSession, CmisSettings } from './cmisSession'
 import RepositoriesPage from './repositoriesPage';
 import FolderPage from './folderPage';
 import ErrorMessage from './error';
@@ -16,9 +16,9 @@ export default class ServersPage extends Page {
     private repoUrl: TextInput;
     private repoUser: TextInput;
     private repoPassword: TextInput;
-    private repoUploadType: TextInput;
+    private repoCmisType: TextInput;
     private repoUploadFormat: ToggleButton;
-    private repoUploadQuality: TextInput;
+    // private repoUploadQuality: TextInput;
 
     private navigationView: NavigationView;
 
@@ -51,13 +51,13 @@ export default class ServersPage extends Page {
                     }).appendTo(this.navigationView);
 
                 } else {
-                        let session = CmisSession.getSession();
-                        console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
-                        let rootFolderId = session.defaultRepository.rootFolderId;
-                        new FolderPage(rootFolderId, this.navigationView,
-                            {
-                                title: '/'
-                            });
+                    let session = CmisSession.getSession();
+                    console.log("REPO: " + JSON.stringify(session.defaultRepository.repositoryId));
+                    let rootFolderId = session.defaultRepository.rootFolderId;
+                    new FolderPage(rootFolderId, this.navigationView,
+                        {
+                            title: '/'
+                        });
                 }
                 activityConnect.stopActivity();
             }).catch((initErr) => {
@@ -102,22 +102,17 @@ export default class ServersPage extends Page {
         this.repoPassword = this.createTextInput(widget, 'repoPassword', 'repoPasswordLabel', 'password', '');
         new TextView({
             top: ['#repoPassword', 5],
-            id: 'repoUploadTypeLabel',
-            text: "Type ID of uploaded images:"
+            id: 'repoCmisTypeLabel',
+            text: "CMIS Type ID for uploaded images:"
         }).appendTo(widget);
-        this.repoUploadType = this.createTextInput(widget, 'repoUploadType', 'repoUploadTypeLabel', 'uploadType', 'cmis:document');
-        // new TextView({
-        //     top: ['#repoUploadType', 5],
-        //     id: 'repoUploadFormatLabel',
-        //     text: "Upload format:"
-        // }).appendTo(widget);
-        // this.repoUploadFormat = createToggleButton(widget, 'repoUploadFormat', 'repoUploadFormatLabel', 'uploadFormat', );
+        this.repoCmisType = this.createTextInput(widget, 'repoCmisType', 'repoCmisTypeLabel', 'cmisType', 'cmis:document');
         new TextView({
-            top: ['#repoUploadType', 5],
-            id: 'repoUploadQualityLabel',
-            text: "Quality of uploaded images:"
+            top: ['#repoCmisType', 5],
+            id: 'repoUploadFormatLabel',
+            text: "Upload Format:"
         }).appendTo(widget);
-        this.repoUploadQuality = this.createTextInput(widget, 'repoUploadQuality', 'repoUploadQualityLabel', 'uploadQuality', '50');
+        this.repoUploadFormat = this.createToggleButton(widget, 'repoUploadFormat', 'repoUploadFormatLabel', 'uploadFormat', 'JPG');
+        // this.repoUploadQuality = this.createTextInput(widget, 'repoUploadQuality', 'repoUploadQualityLabel', 'uploadQuality', '50');
 
         return widget;
     }
@@ -127,27 +122,28 @@ export default class ServersPage extends Page {
         return Object.keys(session.repositories);
     }
 
-    private getSettings():CmisSettings {
-        return {'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'uploadType':this.repoUploadType.text, 'uploadQuality':this.repoUploadQuality.text};
+    private getSettings(): CmisSettings {
+        return { 'url': this.repoUrl.text, 'user': this.repoUser.text, 'password': this.repoPassword.text, 'cmisType': this.repoCmisType.text, 'uploadFormat': this.repoUploadFormat.text };
     }
 
-    private storeSettings(settings:CmisSettings):void {
+    private storeSettings(settings: CmisSettings): void {
         localStorage.setItem('url', settings.url);
         localStorage.setItem('user', settings.user);
+        // password in secure storage
         secureStorage.setItem('password', settings.password);
-        localStorage.setItem('uploadType', settings.uploadType);
-        localStorage.setItem('uploadQuality', settings.uploadQuality);
+        localStorage.setItem('cmisType', settings.cmisType);
+        localStorage.setItem('uploadFormat', settings.uploadFormat);
     }
 
-    private disableLogo():void {
+    private disableLogo(): void {
         this.imageView.enabled = false;
     }
-    
-    private enableLogo():void {
+
+    private enableLogo(): void {
         this.imageView.enabled = true;
     }
 
-    private createTextInput(parent:Composite, id, topId, itemKey, dflt:string):TextInput {
+    private createTextInput(parent: Composite, id, topId, itemKey, dflt: string): TextInput {
         let store = localStorage.getItem(itemKey) || dflt;
         if (itemKey == 'password') {
             store = secureStorage.getItem(itemKey) || dflt;
@@ -162,28 +158,24 @@ export default class ServersPage extends Page {
             this.enableLogo();
         }).appendTo(parent);
     }
-    
-    private createToggleButton(parent:Composite, id, topId, itemKey, dflt:string):ToggleButton {
-        // let localStorage.getItem(itemKey) ;
+
+    private createToggleButton(parent: Composite, id, topId, itemKey, dflt: string): ToggleButton {
+        let store = localStorage.getItem(itemKey) || dflt;
         return new ToggleButton({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
-            checked: (localStorage.getItem(itemKey) == 'JPEG'),
-            text: localStorage.getItem(itemKey) || 'JPEG'
-        }).on('checkedChange', ({target, value}) => {
-            if (value) {
-                target.text = 'JPEG';
-
+            background: '#3b283e',
+            // textColor: '#f3f4e4',
+            textColor: '#d2cab5',
+            checked: (store == 'JPG'),
+            text: store
+        }).on('select', ({ target, checked }) => {
+            console.log("Select Event ...value: " + checked);
+            if (checked) {
+                target.text = 'JPG';
             } else {
                 target.text = 'PNG';
-                // no quality scaling on PNGs
-                this.repoUploadQuality.enabled = false;
             }
-        })
-        .on('focus', () => {
-            this.disableLogo();
-        }).on('blur', () => {
-            this.enableLogo();
         }).appendTo(parent);
     }
 }

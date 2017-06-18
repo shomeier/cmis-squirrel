@@ -2,7 +2,7 @@ import { cmis } from './lib/cmis';
 import ErrorMessage from './error';
 
 export interface CmisSettings {
-    url, user, password, uploadType, uploadQuality: string;
+    url, user, password, cmisType, uploadFormat: string;
 }
 export class CmisSession {
 
@@ -17,7 +17,8 @@ export class CmisSession {
         console.log("Initializing CMIS Session with url: " + settings.url
             + ", user: " + settings.user
             + ', password: ' + settings.password
-            + ', uploadType: ' + settings.uploadType);
+            + ', cmisType: ' + settings.cmisType
+            + ', uploadFormat: ' + settings.uploadFormat);
         CmisSession._settings = settings;
         CmisSession._session = new cmis.CmisSession(settings.url);
         CmisSession._session.setErrorHandler((err) => {
