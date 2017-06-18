@@ -1,4 +1,4 @@
-import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, ToggleButton, Widget, device, ui } from 'tabris';
+import { Button, CollectionView, CollectionViewProperties, Composite, CompositeProperties, Page, PageProperties, Picker, NavigationView, ImageView, TextView, TextInput, ToggleButton, ScrollView, Widget, device, ui } from 'tabris';
 import { CmisSession, CmisSettings } from './cmisSession'
 import RepositoriesPage from './repositoriesPage';
 import FolderPage from './folderPage';
@@ -11,6 +11,7 @@ export default class ServersPage extends Page {
 
     private button: Button;
 
+    private scrollView:ScrollView;
     private imageView: ImageView;
 
     private repoUrl: TextInput;
@@ -24,6 +25,7 @@ export default class ServersPage extends Page {
     constructor(navigationView: NavigationView, properties?: PageProperties) {
         super(properties);
         this.navigationView = navigationView;
+        this.scrollView = new ScrollView({left: 0, top: 0, right: 0, bottom: 0}).appendTo(this);
         this.imageView = this.createLogo();
         let inputForm = this.createInputForm();
         let activityConnect = new Activity(inputForm);
@@ -64,7 +66,7 @@ export default class ServersPage extends Page {
                 activityConnect.stopActivity();
             });
 
-        }).appendTo(this);
+        }).appendTo(this.scrollView);
 
     }
 
@@ -73,7 +75,7 @@ export default class ServersPage extends Page {
             top: 25, centerX: 0,
             id: 'logo',
             image: 'icons/squirrel200.png'
-        }).appendTo(this);
+        }).appendTo(this.scrollView);
     }
 
     private createInputForm(): Widget {
@@ -81,7 +83,7 @@ export default class ServersPage extends Page {
             left: 20, right: 20, bottom: ["#connectButton", 30],
             id: 'inputForm',
             background: '#f3f4e4'
-        }).appendTo(this);
+        }).appendTo(this.scrollView);
         new TextView({
             id: 'repoUrlLabel',
             text: 'CMIS Browser-Binding URL:'
@@ -154,7 +156,7 @@ export default class ServersPage extends Page {
                 store = localStorage.getItem(itemKey) || dflt;
             }
         }
-        let retVal = return new TextInput({
+        return new TextInput({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
             text: store
@@ -163,8 +165,6 @@ export default class ServersPage extends Page {
         }).on('blur', () => {
             this.enableLogo();
         }).appendTo(parent);
-
-        return retVal;
     }
 
     private createToggleButton(parent: Composite, id, topId, itemKey, dflt: string): ToggleButton {
