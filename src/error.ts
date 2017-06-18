@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, Composite, Widget, WidgetCollection, TextView, ui, device } from 'tabris';
+import { ActivityIndicator, Button, Composite, ScrollView, Widget, WidgetCollection, TextView, ui, device } from 'tabris';
 
 
 export default class ErrorMessage {
@@ -36,14 +36,15 @@ export default class ErrorMessage {
             id: 'line',
             background: '#d2cab5'
         }).appendTo(composite);
+        let scrollView = new ScrollView({direction: 'horizontal', left:0, right:0, top: ['#line', 20], id: 'scrollView'}).appendTo(composite);
         let errorText = new TextView({
-            centerX: 0, top: ['#line', 20],
+            top: 0,
             textColor: '#f3f4e4',
             id: 'errorText',
             text: ' Error: ' + errorMessage + ' '
-        }).appendTo(composite);
+        }).appendTo(scrollView);
         let button = new Button({
-            centerX: 0, top: ['#errorText', 20], bottom: 5, width: 100,
+            centerX: 0, top: ['#scrollView', 20], bottom: 5, width: 100,
             background: '#f3f4e4',
             textColor: '#3b283e',
             text: 'OK'
