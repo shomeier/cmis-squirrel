@@ -11,6 +11,7 @@ declare var window: any;
 declare var require: any;
 import roundTo = require('round-to');
 
+// TODO: This code looks disgusting ... cleanup/refactor !!!!
 export default class FolderPage extends Page {
 
     private folderId: string;
