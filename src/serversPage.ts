@@ -163,12 +163,10 @@ export default class ServersPage extends Page {
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
             background: '#3b283e',
-            // textColor: '#f3f4e4',
             textColor: '#d2cab5',
             checked: (store == 'JPG'),
             text: store
         }).on('select', ({ target, checked }) => {
-            console.log("Select Event ...value: " + checked);
             if (checked) {
                 target.text = 'JPG';
             } else {
