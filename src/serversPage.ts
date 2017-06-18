@@ -18,7 +18,6 @@ export default class ServersPage extends Page {
     private repoPassword: TextInput;
     private repoCmisType: TextInput;
     private repoUploadFormat: ToggleButton;
-    // private repoUploadQuality: TextInput;
 
     private navigationView: NavigationView;
 
@@ -112,7 +111,6 @@ export default class ServersPage extends Page {
             text: "Upload Format:"
         }).appendTo(widget);
         this.repoUploadFormat = this.createToggleButton(widget, 'repoUploadFormat', 'repoUploadFormatLabel', 'uploadFormat', 'JPG');
-        // this.repoUploadQuality = this.createTextInput(widget, 'repoUploadQuality', 'repoUploadQualityLabel', 'uploadQuality', '50');
 
         return widget;
     }

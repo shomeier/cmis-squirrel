@@ -89,8 +89,8 @@ export default class FolderPage extends Page {
 
                                 let url = localStorage.getItem('url');
                                 console.log("url: " + url);
-                                let type = localStorage.getItem('uploadType');
-                                console.log("uploadType: " + type);
+                                let type = localStorage.getItem('cmisType');
+                                console.log("cmisType: " + type);
                                 if (!type) {
                                     console.log("Upload type is not set ...");
                                     type = 'cmis:document';
