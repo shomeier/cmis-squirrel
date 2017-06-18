@@ -268,11 +268,6 @@ export default class FolderPage extends Page {
             }
             objectName.set('text', item.cmisName);
         });
-        widget.on('select', function ({ value: item }) {
-            console.log("CELL SELECTED !!!!!!")
-            icon.set('image', 'icons/Cloud-50.png');
-            objectName.set('text', item.cmisBaseTypeId);
-        });
 
         return widget;
     }
