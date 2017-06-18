@@ -69,7 +69,7 @@ export default class FolderPage extends Page {
                     allowEdit : false,
                     correctOrientation: true
                 };
-                if (uploadFormat == 'PNG'){
+                if (uploadFormat === 'PNG'){
                     options['encodingType'] = Camera.EncodingType.PNG;
                     options['targetHeight'] = 1000;
                     options['targetWidth'] = 1000;

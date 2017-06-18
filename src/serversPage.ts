@@ -128,7 +128,11 @@ export default class ServersPage extends Page {
         localStorage.setItem('url', settings.url);
         localStorage.setItem('user', settings.user);
         // password in secure storage
-        secureStorage.setItem('password', settings.password);
+        if (device.platform === "iOS") {
+            secureStorage.setItem('password', settings.password);
+        } else {
+            localStorage.setItem('password', settings.password);
+        }
         localStorage.setItem('cmisType', settings.cmisType);
         localStorage.setItem('uploadFormat', settings.uploadFormat);
     }
@@ -143,10 +147,14 @@ export default class ServersPage extends Page {
 
     private createTextInput(parent: Composite, id, topId, itemKey, dflt: string): TextInput {
         let store = localStorage.getItem(itemKey) || dflt;
-        if (itemKey == 'password') {
-            store = secureStorage.getItem(itemKey) || dflt;
+        if (itemKey === 'password') {
+            if (device.platform === "iOS") {
+                store = secureStorage.getItem(itemKey) || dflt;
+            } else {
+                store = localStorage.getItem(itemKey) || dflt;
+            }
         }
-        return new TextInput({
+        let retVal = return new TextInput({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
             text: store
@@ -155,6 +163,8 @@ export default class ServersPage extends Page {
         }).on('blur', () => {
             this.enableLogo();
         }).appendTo(parent);
+
+        return retVal;
     }
 
     private createToggleButton(parent: Composite, id, topId, itemKey, dflt: string): ToggleButton {
@@ -164,7 +174,7 @@ export default class ServersPage extends Page {
             id: id,
             background: '#3b283e',
             textColor: '#d2cab5',
-            checked: (store == 'JPG'),
+            checked: (store === 'JPG'),
             text: store
         }).on('select', ({ target, checked }) => {
             if (checked) {
