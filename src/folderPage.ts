@@ -1,5 +1,6 @@
 import { ActivityIndicator, Button, CollectionView, Widget, CollectionViewProperties, Composite, CompositeProperties, ImageView, Page, PageProperties, NavigationView, TextView, device, ui } from 'tabris';
 import { CmisSession } from './cmisSession'
+import ErrorMessage from './error';
 import Activity from './activity';
 declare var navigator: any;
 declare var FileTransfer: any;
@@ -293,9 +294,12 @@ export default class FolderPage extends Page {
             function (error) {
                 activityDownload.stopActivity();
                 console.log("download error complete: " + JSON.stringify(error));
+                console.log("download error body: " + JSON.stringify(error.body));
                 console.log("download error source: " + JSON.stringify(error.source));
                 console.log("download error target: " + JSON.stringify(error.target));
                 console.log("download error code: " + JSON.stringify(error.code));
+                new ErrorMessage(new Error(error.body));
+
             },
             false,
             {
