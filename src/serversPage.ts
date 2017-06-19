@@ -71,11 +71,25 @@ export default class ServersPage extends Page {
     }
 
     private createLogo(): ImageView {
+        let logoImage = 'icons/squirrel200.png';
+        if (device.platform === "iOS") {
+            // if device height is below 650 (device independant pixels) we use 100x100 icon
+            if (device.screenHeight < 650) {
+                logoImage = 'icons/squirrel100.png';
+            }
+        } else {
+            // on Android the inputForm is larger
+            if (device.screenHeight < 650) {
+                logoImage = '';
+            } else {
+                logoImage = 'icons/squirrel100.png';
+            }
+        }
+
         return new ImageView({
             top: 25, centerX: 0,
             id: 'logo',
-            // if device height is below 650 (device independant pixels) we use 100x100 icon
-            image: (device.screenHeight < 650) ? 'icons/squirrel100.png': 'icons/squirrel200.png'
+            image: logoImage
         }).appendTo(this.scrollView);
     }
 
