@@ -38,10 +38,10 @@ export default class ErrorMessage {
         }).appendTo(composite);
         let scrollView = new ScrollView({direction: 'horizontal', left:0, right:0, top: ['#line', 20], id: 'scrollView'}).appendTo(composite);
         let errorText = new TextView({
-            top: 0,
+            top: 0, centerX: 0,
             textColor: '#f3f4e4',
             id: 'errorText',
-            text: ' Error: ' + errorMessage + ' '
+            text: 'Error: ' + errorMessage
         }).appendTo(scrollView);
         let button = new Button({
             centerX: 0, top: ['#scrollView', 20], bottom: 5, width: 100,
