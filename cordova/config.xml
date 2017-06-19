@@ -2,7 +2,7 @@
 <widget id="shorty.cmis.tabris" version="0.1.0">
     <name>CMIS Squirrel</name>
     <description>
-    Mobile CMIS Client for AtomPub bindings
+    Mobile CMIS Client for Browser Binding
   </description>
     <author email="sascha.homeier@gmail.com">
     Sascha Homeier
