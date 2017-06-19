@@ -174,7 +174,8 @@ export default class ServersPage extends Page {
         return new TextInput({
             left: 0, right: 0, top: ['#' + topId, 1],
             id: id,
-            text: store
+            text: store,
+            type: (itemKey === 'password') ? 'password' : 'default'
         }).on('focus', () => {
             this.disableLogo();
         }).on('blur', () => {
