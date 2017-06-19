@@ -74,7 +74,8 @@ export default class ServersPage extends Page {
         return new ImageView({
             top: 25, centerX: 0,
             id: 'logo',
-            image: 'icons/squirrel200.png'
+            // if device height is below 650 (device independant pixels) we use 100x100 icon
+            image: (device.screenHeight < 650) ? 'icons/squirrel100.png': 'icons/squirrel200.png'
         }).appendTo(this.scrollView);
     }
 
